@@ -1,0 +1,1 @@
+java -cp classes:lib/htsjdk.jar:lib/biojava4-genome.jar:lib/slf4j-nop.jar edu.carnegiescience.dpb.evanslab.GFFReaderTest $1

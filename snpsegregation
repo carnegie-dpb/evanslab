@@ -1,0 +1,1 @@
+java -cp classes:lib/postgresql.jar edu.carnegiescience.dpb.evanslab.SNPSegregation het ~/Evans/GBS/4.SNP_VarDetect VT avinput.variant_function.snp 1 48 49 96 0 0.0

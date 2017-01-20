@@ -1,0 +1,1 @@
+java -cp classes:lib/htsjdk.jar:lib/postgresql.jar:lib/biojava4-genome.jar:lib/slf4j-nop.jar edu.carnegiescience.dpb.evanslab.ExonFinder $1
