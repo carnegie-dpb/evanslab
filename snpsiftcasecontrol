@@ -1,0 +1,1 @@
+java -cp classes:lib/postgresql.jar edu.carnegiescience.dpb.evanslab.SnpSiftCaseControl /home/shokin/snpEff/all.filted.SNP.ann.caseControl.vcf $1

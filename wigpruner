@@ -1,0 +1,3 @@
+java -cp classes edu.carnegiescience.dpb.evanslab.WigPruner seg-both.wig > seg-both-pruned.wig
+java -cp classes edu.carnegiescience.dpb.evanslab.WigPruner seg-hom.wig  > seg-hom-pruned.wig
+java -cp classes edu.carnegiescience.dpb.evanslab.WigPruner seg-het.wig  > seg-het-pruned.wig
