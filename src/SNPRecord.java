@@ -4,7 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Encapsulates a SNP record from a Novogene .snp file.
+ * Encapsulates a SNP record from a tab-separated Novogene .snp file:
+ *
+ * annoPos  gene                            chr     pos1    pos2    ref     alt     genotype quality MQ      ref-depth  alt-depth
+ * upstream transcript:Zm00001d027578_T001  1       8362870 8362870 C       A       het      26      25      1          5
+ *
  */
 public class SNPRecord {
 

@@ -1,0 +1,1 @@
+java -cp classes:lib/htsjdk.jar edu.carnegiescience.dpb.evanslab.VCFRefCounter ~/Evans/GBS/all.filted.SNP.vcf.gz ~/Evans/GBS/bam rmdup.bam

@@ -3,13 +3,11 @@ package edu.carnegiescience.dpb.evanslab;
 import java.io.File;
 import java.io.FileReader;
 import java.io.BufferedReader;
-import java.util.Map;
+import java.util.Vector;
 import java.util.TreeMap;
-import java.util.Set;
-import java.util.TreeSet;
 
 /**
- * Prune values at the same locus from an input WIG file. Saved value is the one that is largest in the positive direction.
+ * Remove multiple values at the same locus from an input WIG file.
  */
 public class WigPruner {
 
@@ -28,30 +26,48 @@ public class WigPruner {
                 System.exit(1);
             }
 
+            // store positions in a Vector per chromosome and only spit out the ones that occur once.
+            Vector<Integer> positions = null;
+            TreeMap<Integer,Double> values = null;
+
             BufferedReader reader = new BufferedReader(new FileReader(file));
-            int oldPos = 0;
-            double oldVal = 0.0;
             String line;
             while ((line=reader.readLine())!=null) {
-                if (line.startsWith("variableStep")) {
-                    if (oldPos!=0) System.out.println(oldPos+"\t"+oldVal);
-                    String[] parts = line.split("\t");
-                    if (parts[1].startsWith("chrom=B")) break;
+                String[] parts = line.split("\t");
+                if (parts[0].equals("variableStep")) {
+                    if (positions!=null) {
+                        // output previous chromosome data
+                        for (Integer position : values.keySet()) {
+                            int i1 = positions.indexOf(position);
+                            int i2 = positions.lastIndexOf(position);
+                            if (i1==i2) {
+                                // unique position
+                                System.out.println(position+"\t"+values.get(position));
+                            }
+                        }
+                    }
+                    // initialize new chromosome
                     System.out.println(line);
-                    oldPos = 0;
+                    positions = new Vector<Integer>();
+                    values = new TreeMap<Integer,Double>();
                 } else {
-                    String[] parts = line.split("\t");
                     int pos = Integer.parseInt(parts[0]);
                     double val = Double.parseDouble(parts[1]);
-                    if (pos==oldPos) {
-                        if (val>oldVal) oldVal = val;
-                    } else {
-                        if (oldPos!=0) System.out.println(oldPos+"\t"+oldVal);
-                        oldPos = pos;
-                        oldVal = val;
-                    }
+                    positions.add(pos);
+                    values.put(pos, val);
                 }
             }
+
+            // output last chromosome data
+            for (Integer position : values.keySet()) {
+                int i1 = positions.indexOf(position);
+                int i2 = positions.lastIndexOf(position);
+                if (i1==i2) {
+                    // unique position
+                    System.out.println(position+"\t"+values.get(position));
+                }
+            }
+
 
         } catch (Exception ex) {
 

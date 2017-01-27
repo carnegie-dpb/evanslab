@@ -1,0 +1,1 @@
+java -cp classes edu.carnegiescience.dpb.evanslab.SNPZygosity ~/Evans/GBS/4.SNP_VarDetect VT avinput.variant_function.snp 1 48 49 96 5 14 > zygosity.tsv
