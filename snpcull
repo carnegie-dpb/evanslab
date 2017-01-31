@@ -1,0 +1,1 @@
+java -cp classes edu.carnegiescience.dpb.evanslab.SNPCull ~/Evans/GBS/snp VT ref.snp 1 96 $1
