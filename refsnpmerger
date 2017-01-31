@@ -1,0 +1,1 @@
+java -cp classes edu.carnegiescience.dpb.evanslab.RefSNPMerger ~/Evans/GBS/refcounts.txt ~/Evans/GBS/4.SNP_VarDetect avinput.variant_function.snp $1

@@ -41,10 +41,10 @@ public class SNPRecord {
         ref = fields[5].charAt(0);
         alt = fields[6].charAt(0);
         genotype = fields[7];
-        quality = Double.parseDouble(fields[8]);
-        mq = Integer.parseInt(fields[9]);
-        refDepth = Integer.parseInt(fields[10]);
-        altDepth = Integer.parseInt(fields[11]);
+        try { quality = Double.parseDouble(fields[8]); } catch (Exception e) { quality = 0.0; }
+        try { mq = Integer.parseInt(fields[9]); } catch (Exception e) { mq = 0; }
+        try { refDepth = Integer.parseInt(fields[10]); } catch (Exception e) { refDepth = 0; }
+        try { altDepth = Integer.parseInt(fields[11]); } catch (Exception e) { altDepth = 0; }
 
     }
 
@@ -60,6 +60,13 @@ public class SNPRecord {
      */
     public boolean isHeterozygous() {
         return genotype.equals("het");
+    }
+
+    /**
+     * Return true if this is actually a Ref record.
+     */
+    public boolean isReference() {
+        return genotype.equals("ref");
     }
 
     /**
