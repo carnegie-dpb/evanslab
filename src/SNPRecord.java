@@ -49,6 +49,24 @@ public class SNPRecord {
     }
 
     /**
+     * Instantiate from individual values
+     */
+    public SNPRecord(String annoPos, String gene, String chr, int pos1, int pos2, char ref, char alt, String genotype, double quality, int mq, int refDepth, int altDepth) {
+        this.annoPos = annoPos;
+        this.gene = gene;
+        this.chr = chr;
+        this.pos1 = pos1;
+        this.pos2 = pos2;
+        this.ref = ref;
+        this.alt = alt;
+        this.genotype = genotype;
+        this.quality = quality;
+        this.mq = mq;
+        this.refDepth = refDepth;
+        this.altDepth = altDepth;
+    }
+
+    /**
      * Return true if this is a homozygous SNP.
      */
     public boolean isHomozygous() {
@@ -70,10 +88,17 @@ public class SNPRecord {
     }
 
     /**
-     * Standardized string representation
+     * Return true if this record is flagged as exonic
+     */
+    public boolean isExonic() {
+        return annoPos.equals("exonic");
+    }
+
+    /**
+     * Output the standardized string representation as used in a snp file.
      */
     public String toString() {
-        return chr+":"+pos1+"-"+pos2+"\t"+ref+"\t"+alt+"\t"+genotype+"\t"+quality+"\t"+mq+"\t"+refDepth+"\t"+altDepth;
+        return annoPos+"\t"+gene+"\t"+chr+"\t"+pos1+"\t"+pos2+"\t"+ref+"\t"+alt+"\t"+genotype+"\t"+quality+"\t"+mq+"\t"+refDepth+"\t"+altDepth;
     }
     
 }

@@ -1,0 +1,1 @@
+java -cp classes edu.carnegiescience.dpb.evanslab.SNPCombine ~/Evans/GBS/4.SNP_VarDetect/VT$1.avinput.variant_function.snp > VT$1.exonic.snp

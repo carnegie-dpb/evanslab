@@ -34,9 +34,6 @@ public class SNPCull {
                 System.exit(1);
             }
 
-            // header
-            // System.out.println("Samp"+"\t"+"Hom"+"\t"+"Het"+"\t"+"Ref"+"\t"+"Alt");
-
             Map<String,Integer> saveMap = new TreeMap<String,Integer>();
             Map<String,Map<String,Character>> sampleMap = new TreeMap<String,Map<String,Character>>();
 
