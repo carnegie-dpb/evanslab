@@ -3,19 +3,25 @@ package edu.carnegiescience.dpb.evanslab;
 import java.io.File;
 import java.io.FileReader;
 import java.io.BufferedReader;
+import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Run through all the SNP files and output a CSV file containing only loci for which there are significant calls throughout.
+ * Run through all the SNP files and output a rotated CSV file (format="csvr") containing only loci for which there are significant calls throughout.
  */
 public class SNPCull {
 
+    static DecimalFormat cm = new DecimalFormat("#.000000");
+    static DecimalFormat idx = new DecimalFormat("0000");
+
+    static char NULL_CHAR = '-';
+
     public static void main(String[] args) {
 
-        if (args.length!=6) {
-            System.out.println("Usage: SNPCull <SNP-dir> <prefix> <suffix> <minSample> <maxSample> <minDepth>");
-            System.out.println("Example: SNPCull ~/snps VT avinput.variant_function.snp 1 96 5");
+        if (args.length!=7) {
+            System.out.println("Usage: SNPCull <SNP-dir> <prefix> <suffix> <minSample> <maxSample> <minDepth> <minSamples>");
+            System.out.println("Example: SNPCull ~/snps VT avinput.variant_function.snp 1 96 5 80");
             System.exit(1);
         }
         
@@ -27,6 +33,7 @@ public class SNPCull {
             int nMin = Integer.parseInt(args[3]);
             int nMax = Integer.parseInt(args[4]);
             int minDepth = Integer.parseInt(args[5]);
+            int minSamples = Integer.parseInt(args[6]);
 
             File dir = new File(snpDirName);
             if (!dir.isDirectory()) {
@@ -37,77 +44,59 @@ public class SNPCull {
             Map<String,Integer> saveMap = new TreeMap<String,Integer>();
             Map<String,Map<String,Character>> sampleMap = new TreeMap<String,Map<String,Character>>();
 
-            // the first file defines the maximal set of loci
-            String baseName = prefix+String.valueOf(nMin)+"."+suffix;
-            File baseFile = new File(dir, baseName);
-            if (!baseFile.exists()) {
-                System.err.println("Error: "+baseFile.getName()+" does not exist.");
-                System.exit(1);
-            }
-            BufferedReader baseReader = new BufferedReader(new FileReader(baseFile));
-            String baseLine = baseReader.readLine(); // header
-            while ((baseLine=baseReader.readLine())!=null) {
-                SNPRecord rec = new SNPRecord(baseLine);
-                String key = rec.chr+":"+String.format("%10d", rec.pos1); // format preserves alpha ordering
-                if ((rec.isReference() && rec.refDepth>=minDepth*2 && rec.altDepth==0) ||
-                    (rec.isHomozygous() && rec.altDepth>=minDepth*2 && rec.refDepth==0) ||
-                    (rec.isHeterozygous() && rec.altDepth>=minDepth && rec.refDepth>=minDepth)) {
-                    saveMap.put(key, 0);
-                }
-            }
-
             // now spin through the SNP files and increment counter if locus contained in saveMap
-            int samples = 0;
             for (int i=nMin; i<=nMax; i++) {
                 String fileName = prefix+String.valueOf(i)+"."+suffix;
                 File file = new File(dir, fileName);
                 if (file.exists()) {
-                    samples++;
                     System.err.println(file.getName());
-                    Map<String,Character> genoMap = new TreeMap<String,Character>();
+                    Map<String,Character> genotypeMap = new TreeMap<String,Character>();
                     BufferedReader reader = new BufferedReader(new FileReader(file));
                     String line = reader.readLine(); // header line
                     while((line=reader.readLine())!=null) {
                         SNPRecord rec = new SNPRecord(line);
-                        String key = rec.chr+":"+String.format("%10d", rec.pos1); // format preserves alpha ordering
-                        if (saveMap.containsKey(key)) {
-                            if (rec.isReference() && rec.refDepth>=minDepth*2 && rec.altDepth==0) {
+                        if (rec.isNumericChromosome()) {
+                            String key = rec.chr+":"+String.format("%10d", rec.pos1); // format preserves alpha ordering
+                            if (saveMap.containsKey(key)) {
+                                // increment count
                                 int count = saveMap.get(key) + 1;
                                 saveMap.put(key, count);
-                                genoMap.put(key, 'A');
-                            } else if (rec.isHomozygous() && rec.altDepth>=minDepth*2 && rec.refDepth==0) {
-                                int count = saveMap.get(key) + 1;
-                                saveMap.put(key, count);
-                                genoMap.put(key, 'B');
-                            } else if (rec.isHeterozygous() && rec.altDepth>=minDepth && rec.refDepth>=minDepth) {
-                                int count = saveMap.get(key) + 1;
-                                saveMap.put(key, count);
-                                genoMap.put(key, 'H');
+                            } else {
+                                // add new record
+                                saveMap.put(key, 1);
                             }
+                            if (rec.isReference() && rec.refDepth>=minDepth) genotypeMap.put(key, 'A');
+                            if (rec.isHomozygous() && rec.altDepth>=minDepth) genotypeMap.put(key, 'B');
+                            if (rec.isHeterozygous() && (rec.altDepth+rec.refDepth)>=minDepth) genotypeMap.put(key, 'H');
                         }
                     }
-                    sampleMap.put(prefix+String.valueOf(i), genoMap);
+                    sampleMap.put(prefix+idx.format(i), genotypeMap);
                 }
             }
 
-            // sample header
-            System.out.print("PHENOTYPE"+","+"");
+            // output sample names
+            System.out.print("PHENOTYPE,,");
             for (String sample : sampleMap.keySet()) {
                 System.out.print(","+sample);
             }
             System.out.println("");
-            
-            // spit out the loci for which we have a full complement of satisfactory calls
+
+            // output a line for each locus; use 1 cM = 1 Mbp
             for (String key : saveMap.keySet()) {
                 int count = saveMap.get(key);
-                if (count==samples) {
+                if (count>=minSamples) {
                     String[] parts = key.split(":");
                     String chr = parts[0];
                     int pos = Integer.parseInt(parts[1].trim());
-                    System.out.print(chr+":"+pos+","+chr);
+                    String locus = chr+":"+pos;
+                    System.out.print(locus+","+chr+","+cm.format((double)pos*1e-6));
                     for (String sample : sampleMap.keySet()) {
-                        Map genoMap = sampleMap.get(sample);
-                        System.out.print(","+genoMap.get(key));
+                        Character genotype = sampleMap.get(sample).get(key);
+                        if (genotype==null) {
+                            System.out.print(","+NULL_CHAR);
+                        } else {
+                            System.out.print(","+genotype);
+                        }
                     }
                     System.out.println("");
                 }

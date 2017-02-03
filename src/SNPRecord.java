@@ -100,5 +100,17 @@ public class SNPRecord {
     public String toString() {
         return annoPos+"\t"+gene+"\t"+chr+"\t"+pos1+"\t"+pos2+"\t"+ref+"\t"+alt+"\t"+genotype+"\t"+quality+"\t"+mq+"\t"+refDepth+"\t"+altDepth;
     }
+
+    /** 
+     * Return true if chromosome is a number. Useful for not including contigs.
+     */
+    public boolean isNumericChromosome() {
+        try {
+            int i = Integer.parseInt(chr);
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
     
 }

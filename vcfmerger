@@ -1,0 +1,1 @@
+java -cp classes:lib/htsjdk.jar edu.carnegiescience.dpb.evanslab.VCFMerger ~/Evans/GBS/missing.20.20.recode.vcf 1000 10 10

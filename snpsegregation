@@ -1,1 +1,1 @@
-java -cp classes:lib/postgresql.jar edu.carnegiescience.dpb.evanslab.SNPSegregation ~/Evans/GBS/4.SNP_VarDetect VT avinput.variant_function.snp 1 48 49 96 5 > segregation.tsv
+java -cp classes:lib/postgresql.jar edu.carnegiescience.dpb.evanslab.SNPSegregation ~/Evans/GBS/4.SNP_VarDetect VT avinput.variant_function.snp 1 48 49 96 $1 > segregation.tsv

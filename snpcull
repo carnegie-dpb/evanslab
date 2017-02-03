@@ -1,1 +1,1 @@
-java -cp classes edu.carnegiescience.dpb.evanslab.SNPCull ~/Evans/GBS/snp VT ref.snp 1 96 $1
+java -cp classes edu.carnegiescience.dpb.evanslab.SNPCull ~/Evans/GBS/4.SNP_VarDetect VT avinput.variant_function.snp 1 96 $1 $2
