@@ -1,6 +1,7 @@
 package edu.carnegiescience.dpb.evanslab;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -23,17 +24,25 @@ import htsjdk.variant.vcf.VCFHeader;
  */
 public class VCFMerger {
 
+    static DecimalFormat lz = new DecimalFormat("000000000");
+    static DecimalFormat df = new DecimalFormat("00.00");
+    
     public static void main(String[] args) {
 
-        if (args.length!=4) {
-            System.err.println("Usage: VCFMerger <VCF file> minSep minHom minHet");
+        if (args.length!=8) {
+            System.err.println("Usage: VCFMerger file.vcf tab|csv minDifference maxMissing minQ minAvgQ minHom minHet");
             System.exit(1);
         }
 
         String filename = args[0];
-        int minSep = Integer.parseInt(args[1]);
-        int minHom = Integer.parseInt(args[2]);
-        int minHet = Integer.parseInt(args[3]);
+        boolean tabFormat = args[1].equals("tab");
+        boolean csvFormat = args[1].equals("csv");
+        double minDifference = Double.parseDouble(args[2]);
+        int maxMissing = Integer.parseInt(args[3]);
+        int minQ = Integer.parseInt(args[4]);
+        double minAvgQ = Double.parseDouble(args[5]);
+        int minHom = Integer.parseInt(args[6]);
+        int minHet = Integer.parseInt(args[7]);
 
         try {
             
@@ -44,36 +53,66 @@ public class VCFMerger {
             }
 
             // keep track of last output so we only have the first
-            String lastOutput = "";
-            String lastContig = "";
-            int lastPos = 0;
+            String oldOutput = "";
+            String oldContig = "";
+            int oldPos = 0;
+
+            // sum differences, which is essentially cM length of the chromosome
+            double totalDifference = 0.0;
 
             VCFFileReader reader = new VCFFileReader(file, false);
             VCFHeader header = reader.getFileHeader();
             List<String> samples = header.getSampleNamesInOrder();
+
+            if (csvFormat) {
+                System.out.print("PHENO,");
+                for (String sample : samples) System.out.print(","+sample);
+                System.out.println("");
+            }
             
             Iterator<VariantContext> vcIterator = reader.iterator();
             while (vcIterator.hasNext()) {
 
-                // keep track of Het and Hom calls, don't output if below minHom and minHet
+                // add up individual calls
+                int countRef = 0;
                 int countHom = 0;
                 int countHet = 0;
+                int countMissing = 0;
 
-                String output = "";
-                        
+                double avgQ = 0.0;
+                int nQ = 0;
+
                 VariantContext vc = vcIterator.next();
                 String contig = vc.getContig();
                 int pos = vc.getStart();
 
+                String output = "";
+                        
                 // always start with first locus at each chromosome
-                if (!contig.equals(lastContig)) {
-                    lastPos = -10000000;
-                    lastContig = contig;
+                if (!contig.equals(oldContig)) {
+
+                    if (tabFormat && totalDifference>0.0) {
+                        System.out.println("\t\ttotal\t"+df.format(totalDifference));
+                        System.out.println("");
+                    }
+                    
+                    oldOutput = "";
+                    oldContig = contig;
+                    oldPos = -10000000;
+                    totalDifference = 0.0;
                 }
                 
                 for (String sample : samples) {
                     Genotype g = vc.getGenotype(sample);
-                    if (g.isHomRef()) {
+                    if (g.hasGQ()) {
+                        nQ++;
+                        avgQ += (double) g.getGQ();
+                    }
+                    if (g.hasGQ() && g.getGQ()<minQ) {
+                        countMissing++;
+                        output += "-";
+                    } else if (g.isHomRef()) {
+                        countRef++;
                         output += "A";
                     } else if (g.isHet()) {
                         countHet++;
@@ -82,30 +121,50 @@ public class VCFMerger {
                         countHom++;
                         output += "B";
                     } else {
+                        countMissing++;
                         output += "-";
                     }
                 }
+
+                // average Q value
+                if (nQ>0) avgQ = avgQ/nQ;
                 
-                if ((pos-lastPos)>=minSep && countHet>=minHet && countHom>=minHom) {
-                    // substitute A for missing and see if they match up
-                    String outputPlusA = output.replaceAll("-","A");
-                    String lastOutputPlusA = lastOutput.replaceAll("-","A");
-                    boolean matchWithA = outputPlusA.equals(lastOutputPlusA);
-                    // substitute H for missing and see if they match up
-                    String outputPlusH = output.replaceAll("-","H");
-                    String lastOutputPlusH = lastOutput.replaceAll("-","H");
-                    boolean matchWithH = outputPlusH.equals(lastOutputPlusH);
-                    // substitute B for missing and see if they match up
-                    String outputPlusB = output.replaceAll("-","B");
-                    String lastOutputPlusB = lastOutput.replaceAll("-","B");
-                    boolean matchWithB = outputPlusB.equals(lastOutputPlusB);
-                    if (output.equals(lastOutput) || matchWithA || matchWithH || matchWithB) {
-                        // do nothing, stick with previous lastOutput
+                // must meet filter criteria
+                if (countHet>=minHet && countHom>=minHom && countMissing<=maxMissing && avgQ>=minAvgQ) {
+                    String marker = contig+"_"+lz.format(pos);
+                    
+                    if (oldOutput.length()==0) {
+                        // new chromosome
+                        if (tabFormat) System.out.println(marker+"\t"+df.format(avgQ)+"\t\t"+countHet+"\t"+countHom+"\t"+output);
+                        if (csvFormat) {
+                            System.out.print(marker+","+contig);
+                            char[] chars = output.toCharArray();
+                            for (int i=0; i<chars.length; i++) System.out.print(","+chars[i]);
+                            System.out.println("");
+                        }
+                        oldOutput = output;
                     } else {
-                        System.out.println(vc.getContig()+":"+vc.getStart()+"\t"+output);
-                        lastOutput = output;
-                        lastPos = pos;
+                        // calculate difference between old and new output, units are essentially cM
+                        double difference = 0.00;
+                        char[] oldChars = oldOutput.toCharArray();
+                        char[] newChars = output.toCharArray();
+                        for (int i=0; i<oldChars.length; i++) {
+                            if (oldChars[i]!=newChars[i] && oldChars[i]!='-' && newChars[i]!='-') difference += 1.0;
+                        }
+                        difference = difference/samples.size()*100;
+                        totalDifference += difference;
+                        if (difference>=minDifference) {
+                            if (tabFormat) System.out.println(marker+"\t"+df.format(avgQ)+"\t"+df.format(difference)+"\t"+countHet+"\t"+countHom+"\t"+output);
+                            if (csvFormat) {
+                                System.out.print(marker+","+contig);
+                                char[] chars = output.toCharArray();
+                                for (int i=0; i<chars.length; i++) System.out.print(","+chars[i]);
+                                System.out.println("");
+                            }
+                            oldOutput = output;
+                        }
                     }
+
                 }
                 
             }

@@ -1,1 +1,2 @@
-java -cp classes:lib/htsjdk.jar edu.carnegiescience.dpb.evanslab.VCFMerger ~/Evans/GBS/missing.20.20.recode.vcf 1000 10 10
+# Usage: VCFMerger file.vcf tab|csv minDifference maxMissing minQ minAvgQ minHom minHet
+java -cp classes:lib/htsjdk.jar edu.carnegiescience.dpb.evanslab.VCFMerger ~/Evans/GBS/all.filted.SNP.vcf csv 1 5 0 20 15 15
