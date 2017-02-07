@@ -1,0 +1,3 @@
+# Usage: VCFSlicer <VCF file> <Samples file> contig start end hom|het
+java -cp classes:lib/htsjdk.jar edu.carnegiescience.dpb.evanslab.VCFSlicer ~/genomes/Maize/B73v4/Zea_mays.AGPv4.dna.toplevel.fa.gz ~/Evans/GBS/all.filted.SNP.vcf.gz \
+twins.txt 9 34669171 34669335

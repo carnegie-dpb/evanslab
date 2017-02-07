@@ -29,20 +29,22 @@ public class VCFMerger {
     
     public static void main(String[] args) {
 
-        if (args.length!=8) {
-            System.err.println("Usage: VCFMerger file.vcf tab|csv minDifference maxMissing minQ minAvgQ minHom minHet");
+        if (args.length!=9) {
+            System.err.println("Usage: VCFMerger file.vcf tab|csv alleles|zygotes minDifference maxMissing minQ minAvgQ minHom minHet");
             System.exit(1);
         }
 
         String filename = args[0];
         boolean tabFormat = args[1].equals("tab");
         boolean csvFormat = args[1].equals("csv");
-        double minDifference = Double.parseDouble(args[2]);
-        int maxMissing = Integer.parseInt(args[3]);
-        int minQ = Integer.parseInt(args[4]);
-        double minAvgQ = Double.parseDouble(args[5]);
-        int minHom = Integer.parseInt(args[6]);
-        int minHet = Integer.parseInt(args[7]);
+        boolean alleleOutput = args[2].equals("alleles");
+        boolean zygoteOutput = args[2].equals("zygotes");
+        double minDifference = Double.parseDouble(args[3]);
+        int maxMissing = Integer.parseInt(args[4]);
+        int minQ = Integer.parseInt(args[5]);
+        double minAvgQ = Double.parseDouble(args[6]);
+        int minHom = Integer.parseInt(args[7]);
+        int minHet = Integer.parseInt(args[8]);
 
         try {
             
@@ -101,6 +103,8 @@ public class VCFMerger {
                     oldPos = -10000000;
                     totalDifference = 0.0;
                 }
+
+                Allele ref = vc.getReference();
                 
                 for (String sample : samples) {
                     Genotype g = vc.getGenotype(sample);
@@ -113,13 +117,16 @@ public class VCFMerger {
                         output += "-";
                     } else if (g.isHomRef()) {
                         countRef++;
-                        output += "A";
+                        if (zygoteOutput) output += "A";
+                        if (alleleOutput) output += ref.getBaseString().toUpperCase();
                     } else if (g.isHet()) {
                         countHet++;
-                        output += "H";
+                        if (zygoteOutput) output += "H";
+                        if (alleleOutput) output += g.getAllele(1).getBaseString().toLowerCase(); // 0=ref 1=alt
                     } else if (g.isHom()) {
                         countHom++;
-                        output += "B";
+                        if (zygoteOutput) output += "B";
+                        if (alleleOutput) output += g.getAllele(0).getBaseString().toUpperCase(); // 0=alt
                     } else {
                         countMissing++;
                         output += "-";
@@ -130,7 +137,9 @@ public class VCFMerger {
                 if (nQ>0) avgQ = avgQ/nQ;
                 
                 // must meet filter criteria
+
                 if (countHet>=minHet && countHom>=minHom && countMissing<=maxMissing && avgQ>=minAvgQ) {
+
                     String marker = contig+"_"+lz.format(pos);
                     
                     if (oldOutput.length()==0) {
@@ -152,8 +161,10 @@ public class VCFMerger {
                             if (oldChars[i]!=newChars[i] && oldChars[i]!='-' && newChars[i]!='-') difference += 1.0;
                         }
                         difference = difference/samples.size()*100;
-                        totalDifference += difference;
+
                         if (difference>=minDifference) {
+                            
+                            totalDifference += difference;
                             if (tabFormat) System.out.println(marker+"\t"+df.format(avgQ)+"\t"+df.format(difference)+"\t"+countHet+"\t"+countHom+"\t"+output);
                             if (csvFormat) {
                                 System.out.print(marker+","+contig);
