@@ -9,7 +9,7 @@
 
     <property name="bj-genome" value="lib/biojava4-genome.jar"/>
 
-    <property name="jar" value="ncgr-evanslab.jar"/>
+    <property name="jar" value="dpb-evanslab.jar"/>
   </target>
 
   <target name="about">
