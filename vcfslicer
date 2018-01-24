@@ -1,5 +1,5 @@
 # Usage: VCFSlicer <VCF file> <Samples file> contig start end
 # NOTE: VCF file must be bgzipped and tabix indexed using: tabix -p vcf myfile.vcf.gz
 #
-java -cp classes:lib/htsjdk.jar edu.carnegiescience.dpb.evanslab.VCFSlicer ~/genomes/Maize/B73v4/Zea_mays.AGPv4.dna.toplevel.fa.gz ~/EvansLab/Twinning-GBS/all.filted.SNP.vcf.gz \
+java -cp classes:lib/htsjdk.jar edu.carnegiescience.dpb.evanslab.VCFSlicer ~/genomes/Maize/B73v4/Zea_mays.AGPv4.dna.toplevel.fa ~/EvansLab/Twinning-GBS/all.filted.SNP.vcf.gz \
 $1 $2 $3 $4
