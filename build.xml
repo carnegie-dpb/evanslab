@@ -3,12 +3,10 @@
 
   <target name="init">
     <tstamp/>
-
     <property name="htsjdk" value="lib/htsjdk.jar"/>
+    <property name="commons-text" value="lib/commons-text.jar"/>
     <property name="postgres" value="lib/postgresql.jar"/>
-
     <property name="bj-genome" value="lib/biojava4-genome.jar"/>
-
     <property name="jar" value="dpb-evanslab.jar"/>
   </target>
 
@@ -20,7 +18,7 @@
   
   <target name="classes" depends="init">
     <javac srcdir="src"
-	   classpath="classes:${htsjdk}:${postgres}:${bj-genome}"
+	   classpath="classes:${htsjdk}:${postgres}:${bj-genome}:${commons-text}"
            deprecation="on"
            includeantruntime="false"
 	   destdir="classes">
@@ -34,7 +32,7 @@
 
   <target name="javadoc" depends="classes">
     <javadoc destdir="javadoc"
-	     classpath="classes:${htsjdk}:${postgres}:${bj-genome}">
+	     classpath="classes:${htsjdk}:${postgres}:${bj-genome}:${commons-text}">
       <fileset dir="src" />
     </javadoc>
   </target>
