@@ -31,6 +31,19 @@ import htsjdk.variant.vcf.VCFHeader;
 /**
  * Slice out a specific range of locations and samples with the specified zygotes and display in a stacked list of sequences.
  * Useful for seeing what the exact bases are for the heterozygous and homozygous calls of a sample subgroup.
+ *
+ * Genotype methods:
+ *
+ * isAvailable()  true if the type of this genotype is set.
+ * isCalled()     true if this genotype is comprised of any alleles that are not no-calls (even if some are).
+ * isHet()        true if we're het (observed alleles differ); if the ploidy is less than 2 or if any alleles are no-calls, this method will return false.
+ * isHetNonRef()  true if we're het (observed alleles differ) and neither allele is reference; if the ploidy is less than 2 or if any alleles are no-calls, this method will return false.
+ * isHom()        true if all observed alleles are the same (regardless of whether they are ref or alt); if any alleles are no-calls, this method will return false
+ * isHomRef()     true if all observed alleles are ref; if any alleles are no-calls, this method will return false.
+ * isHomVar()     true if all observed alleles are alt; if any alleles are no-calls, this method will return false.
+ * isMixed()      true if this genotype is comprised of both calls and no-calls.
+ * isNoCall()     true if this genotype is not actually a genotype but a "no call" (e.g. './.' in VCF); if any alleles are not no-calls (even if some are), this method will return false.
+ *
  */
 public class VCFSlicer {
 
@@ -73,7 +86,7 @@ public class VCFSlicer {
             }
 
             // load desired samples as keys in a map of sequences 
-            Map<String,String> sequenceMap = new LinkedHashMap<String,String>();         // "-" for reference alleles
+            Map<String,String> sequenceMap = new LinkedHashMap<String,String>();         // store allele markers
             Map<String,String> fullSequenceMap = new LinkedHashMap<String,String>();     // actual base for calculation of distance
             BufferedReader samplesReader = new BufferedReader(new FileReader(samplesFile));
             String line = null;
@@ -105,15 +118,39 @@ public class VCFSlicer {
                         String sequence = sequenceMap.get(sample);
                         String fullSequence = fullSequenceMap.get(sample);
                         Genotype g = vc.getGenotype(sample);
-                        if (g.isHet()) {
-                            sequence += g.getAllele(1).getBaseString().toLowerCase();     // 0=ref, 1=alt
-                            fullSequence += g.getAllele(1).getBaseString().toLowerCase(); // 0=ref, 1=alt
-                        } else if (g.isHom()) {
-                            sequence += g.getAllele(0).getBaseString().toUpperCase();     // 0=alt
-                            fullSequence += g.getAllele(0).getBaseString().toUpperCase(); // 0=alt
-                        } else {
-                            sequence += "-"; // HOM REF
+
+                        // isHomRef()     true if all observed alleles are ref; if any alleles are no-calls, this method will return false.
+                        // isHomVar()     true if all observed alleles are alt; if any alleles are no-calls, this method will return false.
+                        // isHetNonRef()  true if we're het (observed alleles differ) and neither allele is reference; if the ploidy is less than 2 or if any alleles are no-calls, this method will return false.
+                        // isHet()        true if we're het (observed alleles differ); if the ploidy is less than 2 or if any alleles are no-calls, this method will return false.
+
+                        // isAvailable()  true if the type of this genotype is set.
+                        // isCalled()     true if this genotype is comprised of any alleles that are not no-calls (even if some are).
+                        // isHom()        true if all observed alleles are the same (regardless of whether they are ref or alt); if any alleles are no-calls, this method will return false
+                        // isMixed()      true if this genotype is comprised of both calls and no-calls.
+                        // isNoCall()     true if this genotype is not actually a genotype but a "no call" (e.g. './.' in VCF); if any alleles are not no-calls (even if some are), this method will return false.
+
+                        if (g.isHomRef()) {
+                            sequence += "|";                                              // mark as homozygous reference call
                             fullSequence += refSequenceString.charAt(pos-start);
+                        } else if (g.isHomVar()) {
+                            sequence += g.getAllele(0).getBaseString().toUpperCase();     // mark with upper case alt call
+                            fullSequence += g.getAllele(0).getBaseString().toUpperCase();
+                        } else if (g.isHetNonRef()) {    
+                            sequence += "m";                                              // mark with "mixed" flag
+                            fullSequence += "m";
+                        } else if (g.isHet()) {
+                            sequence += g.getAllele(1).getBaseString().toLowerCase();     // mark with lower case alt call
+                            fullSequence += g.getAllele(1).getBaseString().toLowerCase();
+                        } else if (g.isCalled()) {
+                            sequence += "-";                                              // mark as called
+                            fullSequence += refSequenceString.charAt(pos-start);
+                        } else if (g.isAvailable()) {
+                            sequence += "|";                                              // mark as available, presumed reference call
+                            fullSequence += refSequenceString.charAt(pos-start);
+                        } else {
+                            sequence += ".";                                              // mark as not called
+                            fullSequence += refSequenceString.charAt(pos-start);          // assume reference for distance calc
                         }
                         // update the maps
                         sequenceMap.put(sample, sequence);
@@ -122,12 +159,11 @@ public class VCFSlicer {
                     
                 } else {
 
-                    // this position is missing
                     for (String sample : sequenceMap.keySet()) {
                         String sequence = sequenceMap.get(sample);
                         String fullSequence = fullSequenceMap.get(sample);
-                        sequence += "."; // missing
-                        fullSequence += refSequenceString.charAt(pos-start);
+                        sequence += ".";                                                  // mark as not called
+                        fullSequence += refSequenceString.charAt(pos-start);              // assume reference for distance calc
                         // update the maps
                         sequenceMap.put(sample, sequence);
                         fullSequenceMap.put(sample, fullSequence);
