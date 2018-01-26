@@ -94,26 +94,25 @@ public class VCFSlicer {
             // spin through the position range
             for (int pos=start; pos<=end; pos++) {
             
+                // query a single position at a time
                 Iterator<VariantContext> vcIterator = vcfReader.query(contig, pos, pos);
                 if (vcIterator.hasNext()) {
 
+                    // this position has calls
                     VariantContext vc = vcIterator.next();
-                    
                     Allele ref = vc.getReference();
-                    
                     for (String sample : sequenceMap.keySet()) {
-                        
                         String sequence = sequenceMap.get(sample);
                         String fullSequence = fullSequenceMap.get(sample);
                         Genotype g = vc.getGenotype(sample);
                         if (g.isHet()) {
-                            sequence += g.getAllele(1).getBaseString().toLowerCase(); // 0=ref, 1=alt
+                            sequence += g.getAllele(1).getBaseString().toLowerCase();     // 0=ref, 1=alt
                             fullSequence += g.getAllele(1).getBaseString().toLowerCase(); // 0=ref, 1=alt
                         } else if (g.isHom()) {
-                            sequence += g.getAllele(0).getBaseString().toUpperCase(); // 0=alt
+                            sequence += g.getAllele(0).getBaseString().toUpperCase();     // 0=alt
                             fullSequence += g.getAllele(0).getBaseString().toUpperCase(); // 0=alt
                         } else {
-                            sequence += "-";
+                            sequence += "-"; // HOM REF
                             fullSequence += refSequenceString.charAt(pos-start);
                         }
                         // update the maps
@@ -122,11 +121,12 @@ public class VCFSlicer {
                     }
                     
                 } else {
-                    
+
+                    // this position is missing
                     for (String sample : sequenceMap.keySet()) {
                         String sequence = sequenceMap.get(sample);
                         String fullSequence = fullSequenceMap.get(sample);
-                        sequence += "-";
+                        sequence += "."; // missing
                         fullSequence += refSequenceString.charAt(pos-start);
                         // update the maps
                         sequenceMap.put(sample, sequence);
