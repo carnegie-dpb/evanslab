@@ -1,0 +1,6 @@
+# Usage: VCFDisplayer <FASTA file> <VCF file> contig position
+# NOTE: VCF file must be bgzipped and tabix indexed using: tabix -p vcf myfile.vcf.gz
+#
+java -cp classes:lib/htsjdk.jar:lib/commons-text.jar edu.carnegiescience.dpb.evanslab.VCFDisplayer \
+~/genomes/Maize/B73v4/Zea_mays.AGPv4.dna.toplevel.fa \
+~/EvansLab/Twinning-GBS/all.filted.SNP.vcf.gz $1 $2
