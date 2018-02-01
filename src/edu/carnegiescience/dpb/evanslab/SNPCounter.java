@@ -1,71 +1,126 @@
 package edu.carnegiescience.dpb.evanslab;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.BufferedReader;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.Set;
-import java.util.TreeSet;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
+
+import htsjdk.variant.variantcontext.Allele;
+import htsjdk.variant.variantcontext.Genotype;
+import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFHeader;
 
 /**
- * Run through all the SNP files and count the total number of Het vs Hom loci per sample.
+ * Count the HET, HOM, No-calls per sample groups (A and B) from a VCF file.
  */
 public class SNPCounter {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException, IOException {
 
-        if (args.length!=6) {
-            System.out.println("Usage: SNPCounter <SNP-dir> <prefix> <suffix> <minSample> <maxSample> <minDepth>");
-            System.out.println("Example: SNPCounter ~/snps VT avinput.variant_function.snp 1 96 5");
+        if (args.length!=3) {
+            System.err.println("Usage: SNPCounter <VCF file> <A samples list> <B samples list>");
+            System.exit(1);
+        }
+
+        // input parameters
+        // NOTE: vcf index will be assumed to be vcfFilename+".tbi" by the htsjdk routine
+        String vcfFilename = args[0];
+        String aSamplesFilename = args[1];
+        String bSamplesFilename = args[2];
+
+        File aSamplesFile = new File(aSamplesFilename);
+        if (!aSamplesFile.exists()) {
+            System.err.println("Error: file "+aSamplesFile.getName()+" does not exist.");
             System.exit(1);
         }
         
-        try {
-            
-            String snpDirName = args[0];
-            String prefix = args[1];
-            String suffix = args[2];
-            int nMin = Integer.parseInt(args[3]);
-            int nMax = Integer.parseInt(args[4]);
-            int minDepth = Integer.parseInt(args[5]);
+        File bSamplesFile = new File(bSamplesFilename);
+        if (!bSamplesFile.exists()) {
+            System.err.println("Error: file "+bSamplesFile.getName()+" does not exist.");
+            System.exit(1);
+        }
+        
+        File vcfFile = new File(vcfFilename);
+        if (!vcfFile.exists()) {
+            System.err.println("Error: file "+vcfFile.getName()+" does not exist.");
+            System.exit(1);
+        }
+        
+        // load each group of samples into lists
+        List<String> aSamplesList = new ArrayList<String>();
+        List<String> bSamplesList = new ArrayList<String>();
+        BufferedReader samplesReader = new BufferedReader(new FileReader(aSamplesFile));
+        String line = null;
+        while ((line=samplesReader.readLine())!=null) {
+            aSamplesList.add(line);
+        }
+        samplesReader = new BufferedReader(new FileReader(bSamplesFile));
+        line = null;
+        while ((line=samplesReader.readLine())!=null) {
+            bSamplesList.add(line);
+        }
+        
+        // load the VCF file into a reader and header
+        VCFFileReader vcfReader = new VCFFileReader(vcfFile, true);
+        VCFHeader vcfHeader = vcfReader.getFileHeader();
 
-            File dir = new File(snpDirName);
-            if (!dir.isDirectory()) {
-                System.err.println("Error: "+dir.getName()+" is not a directory.");
-                System.exit(1);
+        // output header
+        System.out.println("contig"+"\t"+"position"+"\t"+"qual"+"\t"+"ref"+"\t"+"alt"+"\t"+"Anc"+"\t"+"Ahom"+"\t"+"Ahet"+"\t"+"Bnc"+"\t"+"Bhom"+"\t"+"Bhet");
+        
+        // spin through the VCF file
+        Iterator<VariantContext> vcIterator = vcfReader.iterator();
+        while (vcIterator.hasNext()) {
+
+            VariantContext vc = vcIterator.next();
+            
+            // position data
+            String contig = vc.getContig();
+            int position = vc.getStart();
+            String ref = vc.getReference().getBaseString();
+            String alt = "";
+            for (Allele a : vc.getAlternateAlleles()) {
+                alt += a.getBaseString();
             }
 
-            // header
-            System.out.println("Samp"+"\t"+"Hom"+"\t"+"Het"+"\t"+"Ref"+"\t"+"Alt");
-
-            // spin through the SNP files
-            for (int i=nMin; i<=nMax; i++) {
-                String fileName = prefix+String.valueOf(i)+"."+suffix;
-                File file = new File(dir, fileName);
-                if (file.exists()) {
-                    int homCount = 0;
-                    int hetCount = 0;
-                    int refReads = 0;
-                    int altReads = 0;
-                    BufferedReader reader = new BufferedReader(new FileReader(file));
-                    String line = reader.readLine(); // header line
-                    while((line=reader.readLine())!=null) {
-                        SNPRecord rec = new SNPRecord(line);
-                        refReads += rec.refDepth;
-                        altReads += rec.altDepth;
-                        if (rec.isHomozygous() && rec.altDepth>=minDepth*2 && rec.refDepth==0) homCount++;
-                        if (rec.isHeterozygous() && rec.altDepth>=minDepth && rec.refDepth>=minDepth) hetCount++;
-                    }
-                    System.out.println(i+"\t"+homCount+"\t"+hetCount+"\t"+refReads+"\t"+altReads);
+            // A group
+            int aNC = 0;
+            int aHom = 0;
+            int aHet = 0;
+            for (String sample : aSamplesList) {
+                Genotype g = vc.getGenotype(sample);
+                if (g.isHom()) {
+                    aHom++;
+                } else if (g.isHet()) {
+                    aHet++;
+                } else {
+                    aNC++;
                 }
             }
 
-        } catch (Exception ex) {
+            // B group
+            int bNC = 0;
+            int bHom = 0;
+            int bHet = 0;
+            for (String sample : bSamplesList) {
+                Genotype g = vc.getGenotype(sample);
+                if (g.isHom()) {
+                    bHom++;
+                } else if (g.isHet()) {
+                    bHet++;
+                } else {
+                    bNC++;
+                }
+            }
 
-            System.err.println(ex.toString());
-            System.exit(1);
-
+            // output line
+            System.out.println(contig+"\t"+position+"\t"+vc.getPhredScaledQual()+"\t"+ref+"\t"+alt+"\t"+aNC+"\t"+aHom+"\t"+aHet+"\t"+bNC+"\t"+bHom+"\t"+bHet);
+            
         }
 
     }

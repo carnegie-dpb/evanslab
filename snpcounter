@@ -1,1 +1,4 @@
-java -cp classes edu.carnegiescience.dpb.evanslab.SNPCounter ~/Evans/GBS/4.SNP_VarDetect VT avinput.variant_function.snp 1 96 $1
+# Usage: SNPCounter <VCF file> <A samples file> <B samples file>
+# NOTE: VCF file must be bgzipped and tabix indexed using: tabix -p vcf myfile.vcf.gz
+#
+java -cp classes:lib/htsjdk.jar edu.carnegiescience.dpb.evanslab.SNPCounter ~/EvansLab/Twinning/all.filted.SNP.vcf.gz nontwins.txt twins.txt
