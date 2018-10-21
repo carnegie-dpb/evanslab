@@ -1,2 +1,6 @@
 *~
 classes
+db.properties
+*.seg
+*.seq
+*.txt
