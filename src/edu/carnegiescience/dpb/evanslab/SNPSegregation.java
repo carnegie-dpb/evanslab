@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Run through all the SNP files in the given directory and accumulate segregation statistics.
+ * Run through all the SNP files in the given directory and accumulate segregation statistics subject to a command-line filter.
  */
 public class SNPSegregation {
 
@@ -32,12 +32,6 @@ public class SNPSegregation {
             int bMax = Integer.parseInt(args[6]);
             int minDepth = Integer.parseInt(args[7]);       // Het: alt>=minDepth AND ref>=minDepth; Hom: alt>=minDepth*2
 
-            File dir = new File(snpDirName);
-            if (!dir.isDirectory()) {
-                System.err.println("Error: "+dir.getName()+" is not a directory.");
-                System.exit(1);
-            }
-
             // A group sample count
             int A = 0;
             // total reads, Het sample counts, Hom sample counts
@@ -46,8 +40,8 @@ public class SNPSegregation {
             Map<String,Integer> aHetMap = new TreeMap<String,Integer>();
             Map<String,Integer> aHomMap = new TreeMap<String,Integer>();
             for (int i=aMin; i<=aMax; i++) {
-                String fileName = prefix+String.valueOf(i)+"."+suffix;
-                File file = new File(dir, fileName);
+                String fileName = snpDirName+"/"+prefix+String.valueOf(i)+"/"+prefix+String.valueOf(i)+"."+suffix;
+                File file = new File(fileName);
                 if (file.exists()) {
                     // increment sample counter
                     A++;
@@ -69,7 +63,7 @@ public class SNPSegregation {
                             aAltReadsMap.put(key, rec.altDepth);
                         }
                         // filtering
-                        boolean keep = (rec.isHeterozygous() && rec.refDepth>=minDepth && rec.altDepth>=minDepth) || (rec.isHomozygous() && rec.altDepth>=minDepth*2 && rec.refDepth==0);
+                        boolean keep = (rec.isHeterozygous() && rec.refDepth>=minDepth && rec.altDepth>=minDepth) || (rec.isHomozygous() && rec.altDepth>=minDepth*2);
                         if (keep && rec.isHomozygous()) {
                             if (aHomMap.containsKey(key)) {
                                 // increment hom count here
@@ -101,8 +95,8 @@ public class SNPSegregation {
             Map<String,Integer> bHetMap = new TreeMap<String,Integer>();
             Map<String,Integer> bHomMap = new TreeMap<String,Integer>();
             for (int i=bMin; i<=bMax; i++) {
-                String fileName = prefix+String.valueOf(i)+"."+suffix;
-                File file = new File(dir, fileName);
+                String fileName = snpDirName+"/"+prefix+String.valueOf(i)+"/"+prefix+String.valueOf(i)+"."+suffix;
+                File file = new File(fileName);
                 if (file.exists()) {
                     // increment sample counter
                     B++;
@@ -124,7 +118,7 @@ public class SNPSegregation {
                             bAltReadsMap.put(key, rec.altDepth);
                         }
                         // filtering
-                        boolean keep = (rec.isHeterozygous() && rec.refDepth>=minDepth && rec.altDepth>=minDepth) || (rec.isHomozygous() && rec.altDepth>=minDepth*2 && rec.refDepth==0);
+                        boolean keep = (rec.isHeterozygous() && rec.refDepth>=minDepth && rec.altDepth>=minDepth) || (rec.isHomozygous() && rec.altDepth>=minDepth*2);
                         if (keep && rec.isHomozygous()) {
                             if (bHomMap.containsKey(key)) {
                                 // increment hom count here
@@ -149,7 +143,7 @@ public class SNPSegregation {
             }
 
             // header line
-            System.out.println("contig\tposition\tAref\tAalt\tAhet\tAhom\tBref\tBalt\tBhet\tBhom");
+            System.out.println("contig\tpos\tAref\tAalt\tAhet\tAhom\tBref\tBalt\tBhet\tBhom");
             
             // merge the A and B keys into a single sorted set, since some are only in one map and some are only in the other
             Set<String> keySet = new TreeSet<String>();

@@ -32,18 +32,7 @@ import htsjdk.variant.vcf.VCFHeader;
  * Slice out a specific range of locations and samples with the specified zygotes and display in a stacked list of sequences.
  * Useful for seeing what the exact bases are for the heterozygous and homozygous calls of a sample subgroup.
  *
- * Genotype methods:
- *
- * isAvailable()  true if the type of this genotype is set.
- * isCalled()     true if this genotype is comprised of any alleles that are not no-calls (even if some are).
- * isHet()        true if we're het (observed alleles differ); if the ploidy is less than 2 or if any alleles are no-calls, this method will return false.
- * isHetNonRef()  true if we're het (observed alleles differ) and neither allele is reference; if the ploidy is less than 2 or if any alleles are no-calls, this method will return false.
- * isHom()        true if all observed alleles are the same (regardless of whether they are ref or alt); if any alleles are no-calls, this method will return false
- * isHomRef()     true if all observed alleles are ref; if any alleles are no-calls, this method will return false.
- * isHomVar()     true if all observed alleles are alt; if any alleles are no-calls, this method will return false.
- * isMixed()      true if this genotype is comprised of both calls and no-calls.
- * isNoCall()     true if this genotype is not actually a genotype but a "no call" (e.g. './.' in VCF); if any alleles are not no-calls (even if some are), this method will return false.
- *
+ * @author Sam Hokin
  */
 public class VCFSlicer {
 
