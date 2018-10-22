@@ -9,6 +9,12 @@
 plugins {
     // Apply the java-library plugin to add support for Java Library
     id 'java-library'
+    // Apply the application plugin for bundling the results
+    id 'application'
+}
+
+run {
+    mainClassName = "edu.carnegiescience.dpb.evanslab.VCFLoader"
 }
 
 dependencies {
