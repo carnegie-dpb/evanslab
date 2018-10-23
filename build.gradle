@@ -9,12 +9,13 @@
 plugins {
     // Apply the java-library plugin to add support for Java Library
     id 'java-library'
+
     // Apply the application plugin for bundling the results
     id 'application'
 }
 
 run {
-    mainClassName = "edu.carnegiescience.dpb.evanslab.VCFLoader"
+    mainClassName = "edu.carnegiescience.dpb.evanslab.GFFSearcher"
 }
 
 dependencies {
@@ -30,11 +31,21 @@ dependencies {
     // https://mvnrepository.com/artifact/com.github.samtools/htsjdk
     compile group: 'com.github.samtools', name: 'htsjdk', version: '2.16.1'
 
+    // // https://mvnrepository.com/artifact/org.biojava/biojava
+    // compile group: 'org.biojava', name: 'biojava', version: '5.1.1', ext: 'pom'
+
+    // // https://mvnrepository.com/artifact/org.biojava/biojava-core
+    // compile group: 'org.biojava', name: 'biojava-core', version: '5.1.1'
+
+    // https://mvnrepository.com/artifact/org.biojava/biojava-genome
+    compile group: 'org.biojava', name: 'biojava-genome', version: '5.1.1'
+
 }
 
 // In this section you declare where to find the dependencies of your project
 repositories {
     // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
     jcenter()
+
+    // You can declare any Maven/Ivy/file repository here.
 }
