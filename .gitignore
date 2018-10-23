@@ -5,3 +5,7 @@ db.properties
 *.seg
 *.seq
 *.txt
+*.R
+*.tsv
+*.ods
+*.pdf
