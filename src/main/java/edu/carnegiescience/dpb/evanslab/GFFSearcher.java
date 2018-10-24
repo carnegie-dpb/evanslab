@@ -2,11 +2,9 @@ package edu.carnegiescience.dpb.evanslab;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.IOException;
 
 import org.biojava.nbio.genome.parsers.gff.FeatureI;
 import org.biojava.nbio.genome.parsers.gff.FeatureList;
-import org.biojava.nbio.genome.parsers.gff.GFF3Reader;
 import org.biojava.nbio.genome.parsers.gff.Location;
 
 /**
@@ -14,15 +12,9 @@ import org.biojava.nbio.genome.parsers.gff.Location;
  */
 public class GFFSearcher {
 
-    FeatureList allFeatures;
-
     /**
-     * Construct from a GFF file.
+     * Find features that overlap locations in a provided location file.
      */
-    public GFFSearcher(String gffFilename) throws IOException {
-        allFeatures = GFF3Reader.read(gffFilename);
-    }
-
     public static void main(String[] args) throws Exception {
 
         if (args.length!=2) {
@@ -32,7 +24,7 @@ public class GFFSearcher {
         String gffFilename = args[0];
         String locFilename = args[1];
 
-        GFFSearcher searcher = new GFFSearcher(gffFilename);
+        GFFLoader loader = new GFFLoader(gffFilename);
 
         BufferedReader reader = new BufferedReader(new FileReader(locFilename));
         String line;
@@ -41,7 +33,7 @@ public class GFFSearcher {
             String seqname = parts[0];
             int pos = Integer.parseInt(parts[1]);
             Location location = new Location(pos,pos);
-            FeatureList overlapping = searcher.search(seqname, location);
+            FeatureList overlapping = loader.search(seqname, location);
             if (overlapping.size()>0) {
                 // ONLY SPIT OUT THE FIRST MATCH!!!
                 FeatureI feature = overlapping.get(0);
@@ -51,13 +43,6 @@ public class GFFSearcher {
             }                
         }
         
-    }
-
-    /**
-     * Search for a given location
-     */
-    public FeatureList search(String seqname, Location location) throws Exception {
-        return allFeatures.selectOverlapping(seqname, location, true);
     }
 
 }

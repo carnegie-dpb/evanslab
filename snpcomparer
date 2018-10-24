@@ -1,0 +1,2 @@
+#!/bin/sh
+./gradlew run --args="pollen-on-silk/W22.d10.Q10.vcf.gz pollen-on-silk/remapped_Zea_mays.B73_RefGen_v4.41.gene.gff3 /home/shokin/genomes/Maize/B73v4/Zea_mays.B73_RefGen_v4.41.gene.gff3 pollen-on-silk/B73.d10.Q10.vcf.gz"
