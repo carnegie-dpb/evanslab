@@ -8,6 +8,8 @@ import org.biojava.nbio.genome.parsers.gff.Location;
 
 /**
  * Loads a GFF file and provides handy methods.
+ *
+ * @author Sam Hokin
  */
 public class GFFLoader {
 

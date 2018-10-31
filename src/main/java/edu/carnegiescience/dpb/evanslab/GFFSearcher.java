@@ -9,6 +9,8 @@ import org.biojava.nbio.genome.parsers.gff.Location;
 
 /**
  * Searches a GFF file for features that span given locations.
+ *
+ * @author Sam Hokin
  */
 public class GFFSearcher {
 

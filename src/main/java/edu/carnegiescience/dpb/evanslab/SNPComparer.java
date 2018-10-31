@@ -9,50 +9,104 @@ import org.biojava.nbio.genome.parsers.gff.Location;
 
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
-
 import htsjdk.samtools.util.CloseableIterator;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
+/**
+ * Compares SNPs between a "source" VCF showing SNPs on the source genome, a remap GFF that maps "target" genes to the "source" genome, a target GFF for the target genome
+ * and a target VCF showing SNPs on the target genome. The idea is to list out target genes that have SNPs on the source genome and NOT on the target genome.
+ *
+ * Without the target VCF file, this simply associates target genes with the source VCF file locations.
+ *
+ * Arguments:
+ *   source-vcf-file
+ *   remap-gff-file
+ *   target-gff-file
+ *   target-vcf-file (optional)
+ *
+ * @author Sam Hokin
+ */
 public class SNPComparer {
 
     // parameter defaults
     static int SOURCE_ALT_TOTAL_MIN = 100;
     static double SOURCE_ALT_READ_RATIO_MIN = 0.5;
     static double SOURCE_REF_FRACTION_MAX = 0.5;
-    static double TARGET_REF_FRACTION_MIN =  0.5;
+    static double TARGET_REF_FRACTION_MIN =  0.5; // only used if target VCF file is given
 
     /**
      * Main class does all the work.
      */
     public static void main(String[] args) throws Exception {
-        if (args.length<4) {
-            System.out.println("Usage: SNPComparer <source-vcf-file> <remap-gff-file> <target-gff-file> <target-vcf-file> "+
-                               "[sourceAltTotalMin("+SOURCE_ALT_TOTAL_MIN+")] "+
-                               "[sourceAltReadRatioMin("+SOURCE_ALT_READ_RATIO_MIN+")] "+
-                               "[sourceRefFractionMax("+SOURCE_REF_FRACTION_MAX+")] " +
-                               "[targetRefFractionMin("+TARGET_REF_FRACTION_MIN+")]");
-            System.exit(0);
+
+        Options options = new Options();
+        Option sourceVCFOption = new Option("s", "sourceVCF", true, "source VCF file");
+        sourceVCFOption.setRequired(true);
+        options.addOption(sourceVCFOption);
+        Option remapGFFOption = new Option("r", "remapGFF", true, "remap GFF file (target genes on source genome)");
+        remapGFFOption.setRequired(true);
+        options.addOption(remapGFFOption);
+        Option targetGFFOption = new Option("g", "targetGFF", true, "target GFF file");
+        targetGFFOption.setRequired(true);
+        options.addOption(targetGFFOption);
+        Option targetVCFOption = new Option("t", "targetVCF", true, "target VCF file");
+        targetVCFOption.setRequired(false);
+        options.addOption(targetVCFOption);
+        Option sourceAltTotalMinOption = new Option("satm", "sourceAltTotalMin", true, "minimum ALT reads on source to be included ["+SOURCE_ALT_TOTAL_MIN+"]");
+        sourceAltTotalMinOption.setRequired(false);
+        options.addOption(sourceAltTotalMinOption);
+        Option sourceAltReadRatioMinOption = new Option("sarrm", "sourceAltReadRatioMin", true, "minimum ratio of ALT forward/reverse reads on source to be included ["+SOURCE_ALT_READ_RATIO_MIN+"]");
+        sourceAltReadRatioMinOption.setRequired(false);
+        options.addOption(sourceAltReadRatioMinOption);
+        Option sourceRefFractionMaxOption = new Option("srfm", "sourceRefFractionMax", true, "maximum fraction of REF calls on source to be included ["+SOURCE_REF_FRACTION_MAX+"]");
+        sourceRefFractionMaxOption.setRequired(false);
+        options.addOption(sourceRefFractionMaxOption);
+        Option targetRefFractionMinOption = new Option("trfm", "targetRefFractionMin", true, "minimum fraction of REF calls on target to be included ["+TARGET_REF_FRACTION_MIN+"]");
+        targetRefFractionMinOption.setRequired(false);
+        options.addOption(targetRefFractionMinOption);
+
+        CommandLineParser parser = new DefaultParser();
+        HelpFormatter formatter = new HelpFormatter();
+        CommandLine cmd;
+        try {
+            cmd = parser.parse(options, args);
+        } catch (ParseException e) {
+            System.out.println(e.getMessage());
+            formatter.printHelp("SNPComparer", options);
+            System.exit(1);
+            return;
         }
 
-        // defaults
+        // filenames
+        String sourceVCFFilename = cmd.getOptionValue("sourceVCF");
+        String remapGFFFilename = cmd.getOptionValue("remapGFF");
+        String targetGFFFilename = cmd.getOptionValue("targetGFF");
+        String targetVCFFilename = null;
+        if (cmd.hasOption("targetVCF")) targetVCFFilename = cmd.getOptionValue("targetVCF");
+
+        // parameter defaults
         int sourceAltTotalMin = SOURCE_ALT_TOTAL_MIN;
         double sourceAltReadRatioMin = SOURCE_ALT_READ_RATIO_MIN;
         double sourceRefFractionMax = SOURCE_REF_FRACTION_MAX;
         double targetRefFractionMin = TARGET_REF_FRACTION_MIN;
 
-        String sourceVCFFilename = args[0];
-        String remapGFFFilename = args[1];
-        String targetGFFFilename = args[2];
-        String targetVCFFilename = args[3];
-
-        if (args.length>=5) sourceAltTotalMin = Integer.parseInt(args[4]);
-        if (args.length>=6) sourceAltReadRatioMin = Double.parseDouble(args[5]);
-        if (args.length>=7) sourceRefFractionMax = Double.parseDouble(args[6]);
-        if (args.length>=8) targetRefFractionMin = Double.parseDouble(args[7]);
+        if (cmd.hasOption("sourceAltTotalMin")) sourceAltTotalMin = Integer.parseInt(cmd.getOptionValue("sourceAltTotalMin"));
+        if (cmd.hasOption("sourceAltReadRatioMin")) sourceAltReadRatioMin = Double.parseDouble(cmd.getOptionValue("sourceAltReadRatioMin"));
+        if (cmd.hasOption("sourceRefFractionMax")) sourceRefFractionMax = Double.parseDouble(cmd.getOptionValue("sourceRefFractionMax"));
+        if (cmd.hasOption("targetRefFractionMin")) targetRefFractionMin = Double.parseDouble(cmd.getOptionValue("targetRefFractionMin"));
 
         VCFLoader sourceVCFLoader = new VCFLoader(sourceVCFFilename);
         GFFLoader remapGFFLoader = new GFFLoader(remapGFFFilename);
         GFFLoader targetGFFLoader = new GFFLoader(targetGFFFilename);
-        VCFLoader targetVCFLoader = new VCFLoader(targetVCFFilename);
+        VCFLoader targetVCFLoader = null;
+        if (targetVCFFilename!=null) targetVCFLoader = new VCFLoader(targetVCFFilename);
 
         // output parameters
         System.out.println("edu.carnegiescience.dpb.evanslab.SNPComparer");
@@ -63,12 +117,15 @@ public class SNPComparer {
         System.out.println("sourceAltTotalMin="+sourceAltTotalMin);
         System.out.println("sourceAltReadRatioMin="+sourceAltReadRatioMin);
         System.out.println("sourceRefFractionMax="+sourceRefFractionMax);
-        System.out.println("targetRefFractionMin="+targetRefFractionMin);
+        if (targetVCFFilename!=null) System.out.println("targetRefFractionMin="+targetRefFractionMin);
         System.out.println();
         
         // output header
-        System.out.println("SrcContig\tSrcPos\tSrcRef\tSrcAlt\tSrcRF\tSrcRR\tSrcAF\tSrcAR\tSrcRefFrac\tGeneID\tMinTargetRefFrac");
-        
+        if (targetVCFFilename!=null) {
+            System.out.println("SrcContig\tSrcPos\tSrcRef\tSrcAlt\tSrcRF\tSrcRR\tSrcAF\tSrcAR\tSrcRefFrac\tGeneID\tMinTargetRefFrac");
+        } else {
+            System.out.println("SrcContig\tSrcPos\tSrcRef\tSrcAlt\tSrcRF\tSrcRR\tSrcAF\tSrcAR\tSrcRefFrac\tGeneID");
+        }        
         // load the source VCF file
         sourceVCFLoader.load();
 
@@ -90,6 +147,7 @@ public class SNPComparer {
                 int sourceAltTotal = sourceAltForward + sourceAltReverse;
                 String sourceRefString = sourceRef.getBaseString();
                 String sourceAltString = "";
+                boolean sourceIsHet = sourceAlts.size()>1;
                 for (Allele alt : sourceAlts) {
                     if (sourceAltString.length()>0) sourceAltString += ",";
                     sourceAltString += alt.getBaseString();
@@ -99,6 +157,7 @@ public class SNPComparer {
                 // filtering!
                 boolean sourceOK = (sourceAltTotal>sourceAltTotalMin)
                     && ((double)Math.min(sourceAltForward,sourceAltReverse)/(double)Math.max(sourceAltForward,sourceAltReverse)>sourceAltReadRatioMin)
+                    && (!sourceIsHet)
                     && (sourceRefFraction<sourceRefFractionMax);
                 
                 if (sourceOK) {
@@ -125,39 +184,46 @@ public class SNPComparer {
                                 start = minusEnd;
                                 end = minusStart;
                             }
-                            // now search the target VCF for SNPs on the target genome
                             double minRefFraction = 1.0;
-                            CloseableIterator<VariantContext> iterator = targetVCFLoader.query(chromosome, start, end);
-                            while (iterator.hasNext()) {
-                                VariantContext targetVC = iterator.next();
-                                // target VCF values
-                                int targetStart = targetVC.getStart();
-                                Allele targetRef = targetVC.getReference();
-                                List<Allele> targetAlts = targetVC.getAlternateAlleles();
-                                List<Integer> targetDP4List = targetVC.getAttributeAsIntList("DP4", 0);
-                                int targetRefForward = targetDP4List.get(0);
-                                int targetRefReverse = targetDP4List.get(1);
-                                int targetAltForward = targetDP4List.get(2);
-                                int targetAltReverse = targetDP4List.get(3);
-                                int targetRefTotal = targetRefForward + targetRefReverse;
-                                int targetAltTotal = targetAltForward + targetAltReverse;
-                                String targetRefString = targetRef.getBaseString();
-                                String targetAltString = "";
-                                for (Allele alt : targetAlts) {
-                                    if (targetAltString.length()>0) targetAltString += ",";
-                                    targetAltString += alt.getBaseString();
+                            if (targetVCFLoader!=null) {
+                                // now search the target VCF for SNPs on the target genome
+                                CloseableIterator<VariantContext> iterator = targetVCFLoader.query(chromosome, start, end);
+                                while (iterator.hasNext()) {
+                                    VariantContext targetVC = iterator.next();
+                                    // target VCF values
+                                    int targetStart = targetVC.getStart();
+                                    Allele targetRef = targetVC.getReference();
+                                    List<Allele> targetAlts = targetVC.getAlternateAlleles();
+                                    List<Integer> targetDP4List = targetVC.getAttributeAsIntList("DP4", 0);
+                                    int targetRefForward = targetDP4List.get(0);
+                                    int targetRefReverse = targetDP4List.get(1);
+                                    int targetAltForward = targetDP4List.get(2);
+                                    int targetAltReverse = targetDP4List.get(3);
+                                    int targetRefTotal = targetRefForward + targetRefReverse;
+                                    int targetAltTotal = targetAltForward + targetAltReverse;
+                                    String targetRefString = targetRef.getBaseString();
+                                    String targetAltString = "";
+                                    for (Allele alt : targetAlts) {
+                                        if (targetAltString.length()>0) targetAltString += ",";
+                                        targetAltString += alt.getBaseString();
+                                    }
+                                    double targetRefFraction = (double)targetRefTotal/(double)(targetRefTotal+targetAltTotal);
+                                    if (targetRefFraction<minRefFraction) minRefFraction = targetRefFraction;
                                 }
-                                double targetRefFraction = (double)targetRefTotal/(double)(targetRefTotal+targetAltTotal);
-                                if (targetRefFraction<minRefFraction) minRefFraction = targetRefFraction;
                             }
                             // output record if passes filter
                             if (minRefFraction>targetRefFractionMin) {
-                                System.out.println(sourceContig+"\t"+sourceStart+
+                                System.out.print(sourceContig+"\t"+sourceStart+
                                                    "\t"+sourceRefString+"\t"+sourceAltString+
                                                    "\t"+sourceRefForward+"\t"+sourceRefReverse+
                                                    "\t"+sourceAltForward+"\t"+sourceAltReverse+
                                                    "\t"+sourceRefFraction+
-                                                   "\t"+geneID+"\t"+minRefFraction);
+                                                   "\t"+geneID);
+                                if (targetVCFFilename!=null) {
+                                    System.out.println("\t"+minRefFraction);
+                                } else {
+                                    System.out.println("");
+                                }
                             }
                         }
                     }

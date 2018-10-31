@@ -1,0 +1,3 @@
+#!/bin/sh
+./gradlew run --args="-a 0 -v pollen-on-silk/S364.W22.vcf.gz     -l pollen-on-silk/YX24.W22.Q10.SNPComparer.tsv"
+#./gradlew run --args="-a 0 -v pollen-on-silk/YX24.W22.Q10.vcf.gz -l pollen-on-silk/YX24.W22.Q10.SNPComparer.tsv"

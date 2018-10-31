@@ -11,6 +11,11 @@ import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 
+/**
+ * Loads a VCF file and provides handy methods.
+ *
+ * @author Sam Hokin
+ */
 public class VCFLoader {
 
     public VCFFileReader reader;
@@ -69,10 +74,17 @@ public class VCFLoader {
     }
 
     /**
-     * Query for records within the specified region.
+     * Query for records within the specified region and return a CloseableIterator.
      */
     public CloseableIterator<VariantContext> query(String chrom, int start, int end) {
         return reader.query(chrom, start, end);
+    }
+
+    /**
+     * Return an iterator over all records.
+     */
+    public CloseableIterator<VariantContext> iterator() {
+        return reader.iterator();
     }
     
 }
