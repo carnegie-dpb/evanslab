@@ -8,3 +8,5 @@ db.properties
 *.txt
 *.pdf
 *.png
+*.tsv
+*.ods
