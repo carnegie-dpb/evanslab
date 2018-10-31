@@ -1,4 +1,5 @@
 *~
+build
 .gradle
 classes
 db.properties
@@ -6,3 +7,4 @@ db.properties
 *.seq
 *.txt
 *.pdf
+*.png
