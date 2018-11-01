@@ -17,8 +17,8 @@ plugins {
 run {
 	// mainClassName = "edu.carnegiescience.dpb.evanslab.GFFSearcher"
 	// mainClassName = "edu.carnegiescience.dpb.evanslab.VCFLoader"
-	// mainClassName = "edu.carnegiescience.dpb.evanslab.SNPComparer"
-	mainClassName = "edu.carnegiescience.dpb.evanslab.SNPReadCounter"
+	mainClassName = "edu.carnegiescience.dpb.evanslab.SNPComparer"
+	// mainClassName = "edu.carnegiescience.dpb.evanslab.SNPReadCounter"
 }
 
 dependencies {
