@@ -1,5 +1,5 @@
 #!/bin/sh
 
-#./gradlew run --args="-s pollen-on-silk/S364.W22.d10.Q10.vcf.gz -r pollen-on-silk/remapped_B73_W22.gene.gff3 -g pollen-on-silk/Zea_mays.B73_RefGen_v4.41.gene.gff3 -t pollen-on-silk/S364.B73.d10.Q10.vcf.gz -satm 10 -sarrm 0.5 -srfm 0.1 -trfm 0.9"
+./gradlew run --args="-s pollen-on-silk/S364.W22.vcf.gz -r pollen-on-silk/remapped_B73_W22.gene.gff3 -g pollen-on-silk/Zea_mays.B73_RefGen_v4.41.gene.gff3 -t pollen-on-silk/S364.B73.vcf.gz -satm 4 -sarrm 0.1 -srfm 0.1 -trfm 0.9"
 
-./gradlew run --args="-s pollen-on-silk/YX24.W22.Q10.vcf.gz -r pollen-on-silk/remapped_B73_W22.gene.gff3 -g pollen-on-silk/Zea_mays.B73_RefGen_v4.41.gene.gff3 -satm 4 -sarrm 0.1 -srfm 0.10"
+#./gradlew run --args="-s pollen-on-silk/YX24.W22.Q10.vcf.gz -r pollen-on-silk/remapped_B73_W22.gene.gff3 -g pollen-on-silk/Zea_mays.B73_RefGen_v4.41.gene.gff3 -satm 4 -sarrm 0.1 -srfm 0.1"
