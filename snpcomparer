@@ -1,5 +1,13 @@
 #!/bin/sh
+# -s --sourceVCF  source VCF file
+# -r --remapGFF   remap GFF file
+# -g --targetGFF  target GFF file
+# -t --targetVCF  target VCF file
+# -satm  --sourceAltTotalMin     minimum number of ALT reads on source SNP to be counted
+# -sarrm --sourceAltReadRatioMin minimum ratio of forward/reverse (and vice versa) ALT reads on source SNP
+# -safm  --sourceAltFractionMin  minimum fraction of ALT reads on source SNP
+# -tafm  --targetRefFractionMin  minimum fraction of REF reads on target SNP - all SNPs within target gene must pass this threshold
 
-./gradlew run --args="-s pollen-on-silk/S364.W22.vcf.gz -r pollen-on-silk/remapped_B73_W22.gene.gff3 -g pollen-on-silk/Zea_mays.B73_RefGen_v4.41.gene.gff3 -t pollen-on-silk/S364.B73.vcf.gz -satm 0 -sarrm 0.1 -safm 0.9 -trfm 0.9"
+#./gradlew run --args="-s pollen-on-silk/S364.W22.vcf.gz -r pollen-on-silk/remapped_B73_W22.gene.gff3 -g pollen-on-silk/Zea_mays.B73_RefGen_v4.41.gene.gff3 -t pollen-on-silk/S364.B73.vcf.gz -satm 4 -sarrm 0.1 -safm 0.9 -trfm 0.9"
 
-#./gradlew run --args="-s pollen-on-silk/YX24.W22.Q10.vcf.gz -r pollen-on-silk/remapped_B73_W22.gene.gff3 -g pollen-on-silk/Zea_mays.B73_RefGen_v4.41.gene.gff3 -satm 4 -sarrm 0.1 -srfm 0.1"
+./gradlew run --args="-s pollen-on-silk/YX24.W22.Q10.vcf.gz -r pollen-on-silk/remapped_B73_W22.gene.gff3 -g pollen-on-silk/Zea_mays.B73_RefGen_v4.41.gene.gff3 -t pollen-on-silk/YX24.B73.vcf.gz -satm 4 -sarrm 0.1 -safm 0.9 -trfm 0.9"

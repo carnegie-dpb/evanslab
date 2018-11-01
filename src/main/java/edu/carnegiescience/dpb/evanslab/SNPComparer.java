@@ -27,16 +27,16 @@ import org.apache.commons.cli.ParseException;
  *
  * Parameters:
  *
- * -s --sourceVCF = source VCF file
- * -r --remapGFF = remap GFF file
- * -g --targetGFF = target GFF file
- * -t --targetVCF = target VCF file
- * -satm --sourceAltTotalMin = minimum number of ALT reads on source SNP to be counted
- * -sarrm --sourceAltReadRatioMin = minimum ratio of forward/reverse (and vice versa) ALT reads on source SNP
- * -safm --sourceAltFractionMin = minimum fraction of ALT reads on source SNP
- * -tafm --targetRefFractionMin = minimum fraction of REF reads on target SNP
+ * -s --sourceVCF  source VCF file
+ * -r --remapGFF   remap GFF file
+ * -g --targetGFF  target GFF file
+ * -t --targetVCF  target VCF file
+ * -satm  --sourceAltTotalMin     minimum number of ALT reads on source SNP to be counted
+ * -sarrm --sourceAltReadRatioMin minimum ratio of forward/reverse (and vice versa) ALT reads on source SNP
+ * -safm  --sourceAltFractionMin  minimum fraction of ALT reads on source SNP
+ * -tafm  --targetRefFractionMin  minimum fraction of REF reads on target SNP - all SNPs within target gene must pass this threshold
  *
- * NOTE: only homozygous calls are analyzed.
+ * NOTE: only homozygous calls on the source genome are analyzed.
  *
  * @author Sam Hokin
  */
@@ -134,7 +134,7 @@ public class SNPComparer {
         System.out.println();
         
         // output header
-        System.out.println("Gene\tChromosome\tStart\tEnd\tStrand\tPos\tRef\tAlt\tRefFor\tRefRev\tAltFor\tAltRev");
+        System.out.println("Gene\tChromosome\tStart\tEnd\tStrand\tRefFrac");
 
         // list keeps track of target genes already output
         List<String> targetGeneList = new LinkedList<>();
@@ -180,6 +180,7 @@ public class SNPComparer {
                     FeatureList overlapping = remapGFFLoader.search(sourceContig, sourceLocation);
                     for (FeatureI feature : overlapping) {
                         String geneID = feature.getAttribute("ID");
+                        // only process new genes
                         if (!targetGeneList.contains(geneID)) {
 
                             // find this gene on the target genome
@@ -191,8 +192,8 @@ public class SNPComparer {
                                 int start = loc.start();
                                 int end = loc.end();
                                 char strand = '+';
+                                // if minus strand, indicate with "-" but make start<end
                                 if (start<0) {
-                                    // indicate - strand but make start<end
                                     strand = '-';
                                     int minusStart = -start;
                                     int minusEnd = -end;
@@ -203,6 +204,7 @@ public class SNPComparer {
                                 // now search the target VCF for SNPs on the target genome
                                 List<VariantContext> targetVCList = targetVCFLoader.query(chromosome, start, end).toList();
                                 boolean targetHasSNPs = targetVCList.size()>0;
+                                double minTargetRefFraction = 1.0;
                                 for (VariantContext targetVC : targetVCList) {
                                     int targetStart = targetVC.getStart();
                                     Allele targetRef = targetVC.getReference();
@@ -215,33 +217,19 @@ public class SNPComparer {
                                     int targetRefTotal = targetRefForward + targetRefReverse;
                                     int targetAltTotal = targetAltForward + targetAltReverse;
                                     String targetRefString = targetRef.getBaseString();
-                                    boolean targetIsHet = targetAlts.size()>1;
                                     String targetAltString = "";
                                     for (Allele alt : targetAlts) {
                                         if (targetAltString.length()>0) targetAltString += ",";
                                         targetAltString += alt.getBaseString();
                                     }
                                     double targetRefFraction = (double)targetRefTotal/(double)(targetRefTotal+targetAltTotal);
-                                    
-                                    // output record if passes target filter
-                                    boolean targetOK = (!targetIsHet) && (targetRefFraction>=targetRefFractionMin);
-                                    if (targetOK) {
-                                        System.out.println(geneID+"\t"+chromosome+"\t"+start+"\t"+end+"\t"+strand+
-                                                           "\t"+targetStart+
-                                                           "\t"+targetRefString+"\t"+targetAltString+
-                                                           "\t"+targetRefForward+"\t"+targetRefReverse+"\t"+targetAltForward+"\t"+targetAltReverse
-                                                           );
-                                        targetGeneList.add(geneID);
-                                    }
+                                    minTargetRefFraction = Math.min(targetRefFraction,minTargetRefFraction);
                                 }
-                                
-                                // output gene if no target SNPs
-                                if (!targetHasSNPs) {
-                                    System.out.println(geneID+"\t"+chromosome+"\t"+start+"\t"+end+"\t"+strand+
-                                                       "\t0"+
-                                                       "\tN\tN"+
-                                                       "\t0\t0\t0\t0"
-                                                       );
+                                    
+                                // output record if passes target filter
+                                boolean targetOK = (!targetHasSNPs) || (minTargetRefFraction>=targetRefFractionMin);
+                                if (targetOK) {
+                                    System.out.println(geneID+"\t"+chromosome+"\t"+start+"\t"+end+"\t"+strand+"\t"+minTargetRefFraction);
                                     targetGeneList.add(geneID);
                                 }
                                     

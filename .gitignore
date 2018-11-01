@@ -10,3 +10,4 @@ db.properties
 *.png
 *.tsv
 *.ods
+*.txt.summary
