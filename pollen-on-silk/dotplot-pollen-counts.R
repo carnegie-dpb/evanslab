@@ -112,17 +112,17 @@
 
 ################################################################################
 
-ymin = 1e-3
+ymin = 10
 ymax = 1e4
 
-xmin = 1e-2
-xmax = 1e5
+xmin = 1
+xmax = 1e3
 
-plot(both$TPM.YX24, both$TPM.S364,
+plot(both$Counts.YX24+1, both$Counts.S364+1,
      xlim=c(xmin,xmax), ylim=c(ymin,ymax), cex=0.5,
      log="xy",
-     xlab=paste("YX24 TPM on B73"),
-     ylab=paste("S364 TPM on B73"),
+     xlab=paste("YX24 counts+1 on B73"),
+     ylab=paste("S364 counts+1 on B73"),
      main="Genes for which reads are (almost) entirely pollen"
      )
 
@@ -138,6 +138,6 @@ text(ymax/1e2, ymax, "x100", col="darkgreen")
 text(ymax/1e3, ymax, "x1000", col="darkgreen")
 
 
-text(both$TPM.YX24, both$TPM.S364, both$Gene, cex=0.6, pos=4)
+text(both$Counts.YX24+1, both$Counts.S364+1, both$Gene, cex=0.6, pos=4)
 
 ################################################################################
