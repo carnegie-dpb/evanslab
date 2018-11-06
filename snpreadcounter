@@ -4,6 +4,6 @@
 # -v --vcfFile  VCF file showing SNPs on the genome of interest
 # -a --altMin   minimum ALT depth for a SNP to be counted
 
-#./gradlew run --args="-f pollen-on-silk/S364.W22.SNPComparer.0.1.9.9.tsv -g pollen-on-silk/remapped_B73_W22.gene.gff3 -v pollen-on-silk/S364.W22.vcf.gz -a 4"
+#./gradlew run --args="-f pollen-on-silk/S364.W22.SNPComparer.0.1.1.1.tsv -g pollen-on-silk/remapped_B73_W22.gene.gff3 -v pollen-on-silk/S364.W22.vcf.gz -a 0 -afm 0.0"
 
-./gradlew run --args="-f pollen-on-silk/YX24.W22.SNPComparer.4.1.9.9.tsv -g pollen-on-silk/remapped_B73_W22.gene.gff3 -v pollen-on-silk/YX24.W22.Q10.vcf.gz -a 4"
+./gradlew run --args="-f pollen-on-silk/YX24.W22.SNPComparer.4.1.9.9.tsv -g pollen-on-silk/remapped_B73_W22.gene.gff3 -v pollen-on-silk/YX24.W22.Q10.vcf.gz -a 4 -afm 0.9"

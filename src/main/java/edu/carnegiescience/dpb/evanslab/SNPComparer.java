@@ -134,7 +134,7 @@ public class SNPComparer {
         System.out.println();
         
         // output header
-        System.out.println("Gene\tChromosome\tStart\tEnd\tStrand\tRefFrac");
+        System.out.println("Gene\tChromosome\tStart\tEnd\tStrand\tMinRefFrac");
 
         // list keeps track of target genes already output
         List<String> targetGeneList = new LinkedList<>();
