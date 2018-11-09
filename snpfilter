@@ -1,0 +1,6 @@
+#!/bin/sh
+# -v1 --VCF1 VCF file 1, contains SNPs to consider
+# -v2 --VCF2 VCF file 2, contains SNPs that must match VCF1 location for output
+# -v3 --VCF3 VCF file 3, contains SNPs that must NOT match VCF1 for output
+
+./gradlew run --args="-v1 pollen-on-silk/YX24.W22.vcf.gz -v2 pollen-on-silk/S364.W22.vcf.gz -v3 pollen-on-silk/SRR4035035.W22.vcf.gz"

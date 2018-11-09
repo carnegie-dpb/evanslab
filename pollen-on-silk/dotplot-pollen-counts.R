@@ -38,50 +38,46 @@
 
 ################################################################################
 
-## ymin = 1
-## ymax = 1e5
+ymin = 10
+ymax = 5e3
 
-## xmin = 1
-## xmax = 1e6
+xmin = 4
+xmax = 1e3
 
-## altLine = 4
+altLine = 0
 
-## plot(both$ATnorm.YX24, both$ATnorm.S364,
-##      xlim=c(xmin,xmax), ylim=c(ymin,ymax), cex=0.5,
-##      log="xy",
-##      xlab="Avg. YX24 ALT depth per SNP per gene",
-##      ylab="Avg. S364 ALT depth per SNP per gene",
-##      main="ALT reads per B73 gene at YX24 SNP locations on W22\n(only those without SNPs on B73)"
-##      )
+countRatio = sum(both$Counts.S364*both$AltFrac.S364)/sum(both$Counts.YX24)
 
-## if (altLine>0) {
-##     lines(c(altLine,xmax),    c(altLine,altLine), col="blue")
-##     lines(c(altLine,altLine), c(altLine,ymax),    col="blue")
-##     text(xmax, altLine-1, paste("min ALT=",altLine), col="blue", pos=2)
-## }
+plot(both$ATnorm.YX24, both$ATnorm.S364,
+     xlim=c(xmin,xmax), ylim=c(ymin,ymax), cex=0.5,
+     log="xy",
+     xlab="YX24 ALT depth per SNP per gene",
+     ylab="S364 ALT depth per SNP per gene",
+     main="ALT depth per B73 gene at YX24 SNP locations on W22"
+     )
 
-## ## lines(c(xmin,xmax), (10^medianLogVal)*c(xmin,xmax), col="red")
-## ## lines(c(xmin,xmax), (10^(medianLogVal+sdLogVal))*c(xmin,xmax), col="red", lty=2)
-## ## lines(c(xmin,xmax), (10^(medianLogVal-sdLogVal))*c(xmin,xmax), col="red", lty=2)
+if (altLine>0) {
+    lines(c(altLine,xmax),    c(altLine,altLine), col="blue")
+    lines(c(altLine,altLine), c(altLine,ymax),    col="blue")
+    text(xmax, altLine-1, paste("min ALT=",altLine), col="blue", pos=2)
+}
 
-## lines(c(xmin,ymax/1e1), c(ymin*1e1,ymax), col="darkgreen", lty=3)
-## lines(c(xmin,ymax/1e2), c(ymin*1e2,ymax), col="darkgreen", lty=3)
-## lines(c(xmin,ymax/1e3), c(ymin*1e3,ymax), col="darkgreen", lty=3)
+lines(c(xmin,xmax), countRatio*c(xmin,xmax), col="blue")
+legend(x="bottomright", bty="n", legend=paste("Adj. count ratio =",round(countRatio,4)), col="blue", text.col="blue", lty=1)
 
-## text(ymax/1e1, ymax, "x10", col="darkgreen")
-## text(ymax/1e2, ymax, "x100", col="darkgreen")
-## text(ymax/1e3, ymax, "x1000", col="darkgreen")
+lines(c(xmin,ymax/(1e1*countRatio)), c(xmin*1e1*countRatio,ymax), col="darkgreen", lty=3)
+lines(c(xmin,ymax/(1e2*countRatio)), c(xmin*1e2*countRatio,ymax), col="darkgreen", lty=3)
+lines(c(xmin,ymax/(1e3*countRatio)), c(xmin*1e3*countRatio,ymax), col="darkgreen", lty=3)
 
+text(ymax/(1e1*countRatio), ymax, "x10", col="darkgreen")
+text(ymax/(1e2*countRatio), ymax, "x100", col="darkgreen")
+text(ymax/(1e3*countRatio), ymax, "x1000", col="darkgreen")
 
-## ## legend(x="bottomright",  bty="n",
-## ##        c(paste("median ratio =",round(10^medianLogVal,2)),
-## ##          paste("s.d. ratio =",round(10^sdLogVal,2))),
-## ##        col=c("red","red"),
-## ##        text.col=c("red","red"),
-## ##        lty=c(1,2)
-## ##        )
+text(xmax, xmax*(1e1*countRatio), "x10", col="darkgreen")
+text(xmax, xmax*(1e2*countRatio), "x100", col="darkgreen")
+text(xmax, xmax*(1e3*countRatio), "x1000", col="darkgreen")
 
-## ## text(both$ATnorm.YX24, both$ATnorm.S364, both$Gene, cex=0.5, pos=4)
+text(both$ATnorm.YX24, both$ATnorm.S364, both$Gene, cex=0.5, pos=4)
 
 ################################################################################
 
@@ -109,52 +105,54 @@
 
 ################################################################################
 
-both.positive = both$Counts.YX24>0 & both$Counts.S364>0
+## tpmRatio = sum(both$TPM.S364*both$AltFrac.S364)/sum(both$TPM.YX24)
 
-both.ratioMedian = median(both$TPM.S364[both.positive]/both$TPM.YX24[both.positive])
-both.ratioSD = sd(both$TPM.S364[both.positive]/both$TPM.YX24[both.positive])
+## both.positive = both$Counts.YX24>0 & both$Counts.S364>0
 
-both.logRatioMedian = median(log10(both$TPM.S364[both.positive]/both$TPM.YX24[both.positive]))
-both.logRatioSD = sd(log10(both$TPM.S364[both.positive]/both$TPM.YX24[both.positive]))
+## both.ratioMedian = median(both$TPM.S364[both.positive]/both$TPM.YX24[both.positive])
+## both.ratioSD = sd(both$TPM.S364[both.positive]/both$TPM.YX24[both.positive])
 
-ymin = 1e-3
-ymax = 1e4
+## both.logRatioMedian = median(log10(both$TPM.S364[both.positive]/both$TPM.YX24[both.positive]))
+## both.logRatioSD = sd(log10(both$TPM.S364[both.positive]/both$TPM.YX24[both.positive]))
 
-xmin = 1e-3
-xmax = 1e5
+## ymin = 1e-3
+## ymax = 1e4
 
-plot(both$TPM.YX24, both$TPM.S364*both$AltFrac.S364,
-     xlim=c(xmin,xmax), ylim=c(ymin,ymax), cex=0.5,
-     log="xy",
-     xlab=paste("YX24 TPM (featureCounts)"),
-     ylab=paste("S364 TPM (featureCounts)"),
-     main=paste("Gene TPM on B73 for loci with S364 pollen\nmedian ratio = ",round(both.ratioMedian,2),"(blue line)")
-     )
+## xmin = 1e-3
+## xmax = 1e5
 
-lines(c(xmin,xmax), both.ratioMedian*c(xmin,xmax), col="blue")
+## plot(both$TPM.YX24, both$TPM.S364*both$AltFrac.S364,
+##      xlim=c(xmin,xmax), ylim=c(ymin,ymax), cex=0.5,
+##      log="xy",
+##      xlab=paste("YX24 TPM (featureCounts)"),
+##      ylab=paste("S364 TPM (featureCounts)"),
+##      main=paste("Gene TPM on B73 for loci with S364 pollen\nmedian ratio = ",round(both.ratioMedian,2),"(blue line)")
+##      )
 
-lines(c(xmin,xmax), 1e-1*both.ratioMedian*c(xmin,xmax), col="red")
-lines(c(xmin,xmax), 1e1*both.ratioMedian*c(xmin,xmax), col="darkgreen")
-lines(c(xmin,xmax), 1e2*both.ratioMedian*c(xmin,xmax), col="darkgreen")
-lines(c(xmin,xmax), 1e3*both.ratioMedian*c(xmin,xmax), col="darkgreen")
+## lines(c(xmin,xmax), both.ratioMedian*c(xmin,xmax), col="blue")
 
-text(xmax, xmax*1e-1*both.ratioMedian, "x0.1", col="red", pos=3)
-text(ymax/both.ratioMedian, ymax, "median", col="blue")
-text(ymax/(1e1*both.ratioMedian), ymax, "x10", col="darkgreen")
-text(ymax/(1e2*both.ratioMedian), ymax, "x100", col="darkgreen")
-text(ymax/(1e3*both.ratioMedian), ymax, "x1000", col="darkgreen")
+## lines(c(xmin,xmax), 1e-1*both.ratioMedian*c(xmin,xmax), col="red")
+## lines(c(xmin,xmax), 1e1*both.ratioMedian*c(xmin,xmax), col="darkgreen")
+## lines(c(xmin,xmax), 1e2*both.ratioMedian*c(xmin,xmax), col="darkgreen")
+## lines(c(xmin,xmax), 1e3*both.ratioMedian*c(xmin,xmax), col="darkgreen")
 
-## lines(xmin:xmax-sqrt(xmin:xmax), .10*both.ratioMedian*(xmin:xmax)+sqrt(.10*both.ratioMedian*(xmin:xmax)), col="gray")
-## lines(xmin:xmax+sqrt(xmin:xmax), .10*both.ratioMedian*(xmin:xmax)-sqrt(.10*both.ratioMedian*(xmin:xmax)), col="gray")
-## lines(xmin:xmax-sqrt(xmin:xmax), both.ratioMedian*(xmin:xmax)+sqrt(both.ratioMedian*(xmin:xmax)), col="gray")
-## lines(xmin:xmax+sqrt(xmin:xmax), both.ratioMedian*(xmin:xmax)-sqrt(both.ratioMedian*(xmin:xmax)), col="gray")
-## lines(xmin:xmax-sqrt(xmin:xmax), 10*both.ratioMedian*(xmin:xmax)+sqrt(10*both.ratioMedian*(xmin:xmax)), col="gray")
-## lines(xmin:xmax+sqrt(xmin:xmax), 10*both.ratioMedian*(xmin:xmax)-sqrt(10*both.ratioMedian*(xmin:xmax)), col="gray")
-## lines(xmin:xmax-sqrt(xmin:xmax), 100*both.ratioMedian*(xmin:xmax)+sqrt(100*both.ratioMedian*(xmin:xmax)), col="gray")
-## lines(xmin:xmax+sqrt(xmin:xmax), 100*both.ratioMedian*(xmin:xmax)-sqrt(100*both.ratioMedian*(xmin:xmax)), col="gray")
-## lines(xmin:xmax-sqrt(xmin:xmax), 1000*both.ratioMedian*(xmin:xmax)+sqrt(1000*both.ratioMedian*(xmin:xmax)), col="gray")
-## lines(xmin:xmax+sqrt(xmin:xmax), 1000*both.ratioMedian*(xmin:xmax)-sqrt(1000*both.ratioMedian*(xmin:xmax)), col="gray")
+## text(xmax, xmax*1e-1*both.ratioMedian, "x0.1", col="red", pos=3)
+## text(ymax/both.ratioMedian, ymax, "median", col="blue")
+## text(ymax/(1e1*both.ratioMedian), ymax, "x10", col="darkgreen")
+## text(ymax/(1e2*both.ratioMedian), ymax, "x100", col="darkgreen")
+## text(ymax/(1e3*both.ratioMedian), ymax, "x1000", col="darkgreen")
 
-##text(both$TPM.YX24, both$TPM.S364, both$Gene, cex=0.6, pos=4)
+## ## lines(xmin:xmax-sqrt(xmin:xmax), .10*both.ratioMedian*(xmin:xmax)+sqrt(.10*both.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax+sqrt(xmin:xmax), .10*both.ratioMedian*(xmin:xmax)-sqrt(.10*both.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax-sqrt(xmin:xmax), both.ratioMedian*(xmin:xmax)+sqrt(both.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax+sqrt(xmin:xmax), both.ratioMedian*(xmin:xmax)-sqrt(both.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax-sqrt(xmin:xmax), 10*both.ratioMedian*(xmin:xmax)+sqrt(10*both.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax+sqrt(xmin:xmax), 10*both.ratioMedian*(xmin:xmax)-sqrt(10*both.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax-sqrt(xmin:xmax), 100*both.ratioMedian*(xmin:xmax)+sqrt(100*both.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax+sqrt(xmin:xmax), 100*both.ratioMedian*(xmin:xmax)-sqrt(100*both.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax-sqrt(xmin:xmax), 1000*both.ratioMedian*(xmin:xmax)+sqrt(1000*both.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax+sqrt(xmin:xmax), 1000*both.ratioMedian*(xmin:xmax)-sqrt(1000*both.ratioMedian*(xmin:xmax)), col="gray")
+
+## ##text(both$TPM.YX24, both$TPM.S364, both$Gene, cex=0.6, pos=4)
 
 ################################################################################
