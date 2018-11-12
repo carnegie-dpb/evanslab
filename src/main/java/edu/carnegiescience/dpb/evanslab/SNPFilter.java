@@ -3,10 +3,6 @@ package edu.carnegiescience.dpb.evanslab;
 import java.util.List;
 import java.util.LinkedList;
 
-import org.biojava.nbio.genome.parsers.gff.FeatureI;
-import org.biojava.nbio.genome.parsers.gff.FeatureList;
-import org.biojava.nbio.genome.parsers.gff.Location;
-
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
 
@@ -74,23 +70,80 @@ public class SNPFilter {
         System.out.println("vcf2Filename:"+vcf2Filename);
         System.out.println("vcf3Filename:"+vcf3Filename);
         System.out.println();
+
+        // output header
+        System.out.println("Contig\tPos\tREF\tALT\t"+
+                           "Var1RF\tVar1RR\tVar1AF\tVar1AR\t"+
+                           "Var2RF\tVar2RR\tVar2AF\tVar2AR");
         
-    //     // output header
-    //     System.out.println("Gene\tChromosome\tStart\tEnd\tStrand\tMinRefFrac");
+        // instantiate the VCF loaders
+        VCFLoader vcf1Loader = new VCFLoader(vcf1Filename);
+        VCFLoader vcf2Loader = new VCFLoader(vcf2Filename);
+        VCFLoader vcf3Loader = new VCFLoader(vcf3Filename);
+        
+        // spin through the source VCF file
+        vcf1Loader.load();
+        for (VariantContext vc1 : vcf1Loader.vcList) {
+            // limit to SNPs
+            if (vc1.isSNP()) {
 
-    //     // list keeps track of target genes already output
-    //     List<String> targetGeneList = new LinkedList<>();
+                // get vc1 data
+                String vc1ID = vc1.getID();
+                String vc1Contig = vc1.getContig();
+                int vc1Start = vc1.getStart();
+                int vc1End = vc1.getEnd();
+                Allele vc1Ref = vc1.getReference();
+                String vc1RefString = vc1Ref.getBaseString();
+                List<Allele> vc1Alts = vc1.getAlternateAlleles();
+                String vc1AltString = "";
+                for (Allele alt : vc1Alts) {
+                    if (vc1AltString.length()>0) vc1AltString += ",";
+                    vc1AltString += alt.getBaseString();
+                }
+                // search for this location on VCF2
+                List<VariantContext> vc2List = vcf2Loader.query(vc1Contig, vc1Start, vc1End).toList();
+                for (VariantContext vc2 : vc2List) {
 
-    //     // load and spin through the source VCF file
-    //     sourceVCFLoader.load();
-    //     for (VariantContext sourceVC : sourceVCFLoader.vcList) {
-    //         if (sourceVC.isSNP()) {
+                    // get vc2 data
+                    String vc2ID = vc2.getID();
+                    String vc2Contig = vc2.getContig();
+                    int vc2Start = vc2.getStart();
+                    int vc2End = vc2.getEnd();
+                    Allele vc2Ref = vc2.getReference();
+                    String vc2RefString = vc2Ref.getBaseString();
+                    List<Allele> vc2Alts = vc2.getAlternateAlleles();
+                    String vc2AltString = "";
+                    for (Allele alt : vc2Alts) {
+                        if (vc2AltString.length()>0) vc2AltString += ",";
+                        vc2AltString += alt.getBaseString();
+                    }
+                    // check for ALT match between VCF1 and VCF2
+                    if (vc1AltString.equals(vc2AltString)) {
+                        // search for this location on VCF3
+                        List<VariantContext> vc3List = vcf3Loader.query(vc1Contig, vc1Start, vc1End).toList();
+                        if (vc3List.size()==0) {
+                            // We have a winner!
+                            List<Integer> vc1DP4 = vc1.getAttributeAsIntList("DP4", 0);
+                            int vc1RefForward = vc1DP4.get(0);
+                            int vc1RefReverse = vc1DP4.get(1);
+                            int vc1AltForward = vc1DP4.get(2);
+                            int vc1AltReverse = vc1DP4.get(3); 
+                            List<Integer> vc2DP4 = vc2.getAttributeAsIntList("DP4", 0);
+                            int vc2RefForward = vc2DP4.get(0);
+                            int vc2RefReverse = vc2DP4.get(1);
+                            int vc2AltForward = vc2DP4.get(2);
+                            int vc2AltReverse = vc2DP4.get(3); 
+                            // output
+                            System.out.println(vc1Contig+"\t"+vc1Start+"\t"+vc1RefString+"\t"+vc1AltString+"\t"+
+                                               vc1RefForward+"\t"+vc1RefReverse+"\t"+vc1AltForward+"\t"+vc1AltReverse+"\t"+
+                                               vc2RefForward+"\t"+vc2RefReverse+"\t"+vc2AltForward+"\t"+vc2AltReverse);
+                        }
+                    }
+                }
+            }
+        }
 
-    //             // source VCF values
-    //             String sourceID = sourceVC.getID();
-    //             String sourceContig = sourceVC.getContig();
-    //             int sourceStart = sourceVC.getStart();
-    //             Allele sourceRef = sourceVC.getReference();
+    //             Allele sourceuRef = sourceVC.getReference();
     //             List<Allele> sourceAlts = sourceVC.getAlternateAlleles();
     //             List<Integer> dp4List = sourceVC.getAttributeAsIntList("DP4", 0);
     //             int sourceRefForward = dp4List.get(0);
