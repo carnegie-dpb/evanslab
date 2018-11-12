@@ -20,8 +20,8 @@ import org.apache.commons.cli.ParseException;
  * Parameters:
  *
  * -v1 --VCF1 VCF file 1, contains SNPs to consider
- * -v2 --VCF2 VCF file 2, contains SNPs that must match VCF1 location for output
- * -v3 --VCF3 VCF file 3, contains SNPs that must NOT match VCF1 for output
+ * -v2 --VCF2 VCF file 2, contains SNPs that must match VCF1 location and ALT values
+ * -v3 --VCF3 VCF file 3, contains SNPs that must NOT be present at VCF1 location or match VCF1 ALT values, if present
  *
  * @author Sam Hokin
  */
