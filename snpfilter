@@ -2,5 +2,6 @@
 # -v1 --VCF1 VCF file 1, contains SNPs to consider
 # -v2 --VCF2 VCF file 2, contains SNPs that must match VCF1 location and ALT values
 # -v3 --VCF3 VCF file 3, contains SNPs that must NOT be present at VCF1 location or match VCF1 ALT values, if present
-#
+# -g  --GFF  GFF file containing regions (e.g. genes) that should not contain ANY matching SNPs from VCF3 (optional)
+
 ./gradlew run --args="-v1 pollen-on-silk/YX24.W22.vcf.gz -v2 pollen-on-silk/S364.W22.vcf.gz -v3 pollen-on-silk/SRR4035035.W22.vcf.gz"
