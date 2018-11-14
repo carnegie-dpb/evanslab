@@ -2,6 +2,8 @@ package edu.carnegiescience.dpb.evanslab;
 
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -97,6 +99,9 @@ public class SNPFilter {
 
         // list of "losing" locations for filtering out GFF regions
         List<String> losingLocations = new LinkedList<>();
+
+        // map of locations to ALT string where VCF3 has a SNP with a different allele
+        Map<String,String> differingLocations = new HashMap<>();
         
         // spin through the source VCF file
         vcf1Loader.load();
@@ -137,13 +142,14 @@ public class SNPFilter {
                             String vc3RefString = vc3Ref.getBaseString();
                             String vc3AltString = getAltString(vc3);
                             // we allow VCF3 to have a DIFFERENT ALT allele at this position
-                            winner = (!vc1AltString.equals(vc3AltString));
+                            if (vc3AltString.equals(vc1AltString)) {
+                                winner = false;
+                                losingLocations.add(vc1Contig+":"+vc1Start);
+                            } else {
+                                differingLocations.put(vc1Contig+":"+vc1Start, vc3AltString);
+                            }
                         }
-                        if (winner) {
-                            winningLocations.add(vc1Contig+":"+vc1Start);
-                        } else {
-                            losingLocations.add(vc1Contig+":"+vc1Start);
-                        }
+                        if (winner) winningLocations.add(vc1Contig+":"+vc1Start);
                     }
                 }
             }
@@ -168,7 +174,8 @@ public class SNPFilter {
         // output header
         System.out.println("Contig\tPos\tREF\tALT\t"+
                            "Var1RF\tVar1RR\tVar1AF\tVar1AR\t"+
-                           "Var2RF\tVar2RR\tVar2AF\tVar2AR");
+                           "Var2RF\tVar2RR\tVar2AF\tVar2AR\t"+
+                           "Var3ALT");
         // run through the winners, outputting the relevant data
         for (String loc : winningLocations) {
             String[] parts = loc.split(":");
@@ -199,7 +206,9 @@ public class SNPFilter {
                     int vc1RefForward = vc1DP4.get(0);
                     int vc1RefReverse = vc1DP4.get(1);
                     int vc1AltForward = vc1DP4.get(2);
-                    int vc1AltReverse = vc1DP4.get(3); 
+                    int vc1AltReverse = vc1DP4.get(3);
+                    String vc3AltString = "";
+                    if (differingLocations.containsKey(contig+":"+pos)) vc3AltString = differingLocations.get(contig+":"+pos);
                     List<VariantContext> vc2List = vcf2Loader.query(vc1Contig, vc1Start, vc1End).toList();
                     for (VariantContext vc2 : vc2List) {
                         // get vc2 data
@@ -218,7 +227,8 @@ public class SNPFilter {
                         // output
                         System.out.println(vc1Contig+"\t"+vc1Start+"\t"+vc1RefString+"\t"+vc1AltString+"\t"+
                                            vc1RefForward+"\t"+vc1RefReverse+"\t"+vc1AltForward+"\t"+vc1AltReverse+"\t"+
-                                           vc2RefForward+"\t"+vc2RefReverse+"\t"+vc2AltForward+"\t"+vc2AltReverse);
+                                           vc2RefForward+"\t"+vc2RefReverse+"\t"+vc2AltForward+"\t"+vc2AltReverse+"\t"+
+                                           vc3AltString);
                     }
                 }
             }

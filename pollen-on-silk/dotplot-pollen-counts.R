@@ -1,7 +1,36 @@
 ################################################################################
 
-plot(W22$Var1AF+W22$Var1AR, W22$Var2AF+W22$Var2AR, log="xy", xlab="YX24 ALT Count", ylab="S364 ALT Count", xlim=c(1,2e5), ylim=c(1,5e4), cex=0.5)
-lines(c(1,2e5),c(1,5e4),col="blue")
+xmin = 2
+xmax = 200
+
+ymin = 200
+ymax = 3e4
+
+ratio = (W22$Var2AF+W22$Var2AR)/(W22$Var1AF+W22$Var1AR)
+high = ratio>100
+
+plot(W22$Var1AF+W22$Var1AR, W22$Var2AF+W22$Var2AR, log="xy", xlab="YX24 ALT Count", ylab="S364 ALT Count", xlim=c(xmin,xmax), ylim=c(ymin,ymax), cex=0.5)
+text(W22$Var1AF[high]+W22$Var1AR[high], W22$Var2AF[high]+W22$Var2AR[high], paste(W22$Contig[high],":",W22$Pos[high],sep=""), cex=0.6, pos=4, offset=0.2)
+
+lines(c(1,xmax),median(ratio)*c(1,xmax),col="blue")
+lines(c(1,xmax),10*median(ratio)*c(1,xmax),col="darkgreen")
+lines(c(1,xmax),100*median(ratio)*c(1,xmax),col="darkgreen")
+lines(c(1,xmax),1000*median(ratio)*c(1,xmax),col="darkgreen")
+lines(c(1,xmax),10000*median(ratio)*c(1,xmax),col="darkgreen")
+
+lines(c(1:xmax)-sqrt(c(1:xmax)), median(ratio)*c(1:xmax)+sqrt(median(ratio)*c(1:xmax)), col="blue", lty=2)
+lines(c(1:xmax)+sqrt(c(1:xmax)), median(ratio)*c(1:xmax)-sqrt(median(ratio)*c(1:xmax)), col="blue", lty=2)
+
+legend(x="bottomright", inset=0.01,
+       c(paste("median ratio =",round(median(ratio),4)),
+         "+/- sqrt(n)"
+         ),
+       text.col=c("blue"),
+       col=c("blue"),
+       lty=c(1,2),
+       bty="n")
+
+## hist(log2(ratio), breaks=50)
 
 ################################################################################
 
