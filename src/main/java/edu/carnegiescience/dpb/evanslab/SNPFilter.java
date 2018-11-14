@@ -2,6 +2,8 @@ package edu.carnegiescience.dpb.evanslab;
 
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Set;
+import java.util.HashSet;
 
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -92,6 +94,9 @@ public class SNPFilter {
 
         // list of "winning" locations for output
         List<String> winningLocations = new LinkedList<>();
+
+        // list of "losing" locations for filtering out GFF regions
+        List<String> losingLocations = new LinkedList<>();
         
         // spin through the source VCF file
         vcf1Loader.load();
@@ -132,12 +137,30 @@ public class SNPFilter {
                             String vc3RefString = vc3Ref.getBaseString();
                             String vc3AltString = getAltString(vc3);
                             // we allow VCF3 to have a DIFFERENT ALT allele at this position
-                            winner = (vc1AltString.equals(vc3AltString));
+                            winner = (!vc1AltString.equals(vc3AltString));
                         }
                         if (winner) {
                             winningLocations.add(vc1Contig+":"+vc1Start);
+                        } else {
+                            losingLocations.add(vc1Contig+":"+vc1Start);
                         }
                     }
+                }
+            }
+        }
+
+        // Optionally collect the genes that contain losing locations for further rejection
+        Set<String> losingGenes = new HashSet<>();
+        if (gffLoader!=null) {
+            for (String loc : losingLocations) {
+                String[] parts = loc.split(":");
+                String contig = parts[0];
+                Integer pos = Integer.parseInt(parts[1]);
+                Location location = new Location(pos, pos);
+                FeatureList overlapping = gffLoader.search(contig, location);
+                for (FeatureI feature : overlapping) {
+                    String geneID = feature.getAttribute("ID");
+                    losingGenes.add(geneID);
                 }
             }
         }
@@ -151,40 +174,52 @@ public class SNPFilter {
             String[] parts = loc.split(":");
             String contig = parts[0];
             Integer pos = Integer.parseInt(parts[1]);
-            List<VariantContext> vc1List = vcf1Loader.query(contig, pos, pos).toList();
-            for (VariantContext vc1 : vc1List) {
-                // get vc1 data
-                String vc1ID = vc1.getID();
-                String vc1Contig = vc1.getContig();
-                int vc1Start = vc1.getStart();
-                int vc1End = vc1.getEnd();
-                Allele vc1Ref = vc1.getReference();
-                String vc1RefString = vc1Ref.getBaseString();
-                String vc1AltString = getAltString(vc1);
-                List<Integer> vc1DP4 = vc1.getAttributeAsIntList("DP4", 0);
-                int vc1RefForward = vc1DP4.get(0);
-                int vc1RefReverse = vc1DP4.get(1);
-                int vc1AltForward = vc1DP4.get(2);
-                int vc1AltReverse = vc1DP4.get(3); 
-                List<VariantContext> vc2List = vcf2Loader.query(vc1Contig, vc1Start, vc1End).toList();
-                for (VariantContext vc2 : vc2List) {
-                    // get vc2 data
-                    String vc2ID = vc2.getID();
-                    String vc2Contig = vc2.getContig();
-                    int vc2Start = vc2.getStart();
-                    int vc2End = vc2.getEnd();
-                    Allele vc2Ref = vc2.getReference();
-                    String vc2RefString = vc2Ref.getBaseString();
-                    String vc2AltString = getAltString(vc2);
-                    List<Integer> vc2DP4 = vc2.getAttributeAsIntList("DP4", 0);
-                    int vc2RefForward = vc2DP4.get(0);
-                    int vc2RefReverse = vc2DP4.get(1);
-                    int vc2AltForward = vc2DP4.get(2);
-                    int vc2AltReverse = vc2DP4.get(3); 
-                    // output
-                    System.out.println(vc1Contig+"\t"+vc1Start+"\t"+vc1RefString+"\t"+vc1AltString+"\t"+
-                                       vc1RefForward+"\t"+vc1RefReverse+"\t"+vc1AltForward+"\t"+vc1AltReverse+"\t"+
-                                       vc2RefForward+"\t"+vc2RefReverse+"\t"+vc2AltForward+"\t"+vc2AltReverse);
+            // optional removal if this is on a losing gene
+            String losingGene = null;
+            if (gffLoader!=null) {
+                Location location = new Location(pos, pos);
+                FeatureList overlapping = gffLoader.search(contig, location);
+                for (FeatureI feature : overlapping) {
+                    String geneID = feature.getAttribute("ID");
+                    if (losingGenes.contains(geneID)) losingGene = geneID;
+                }
+            }
+            if (losingGene==null) {
+                List<VariantContext> vc1List = vcf1Loader.query(contig, pos, pos).toList();
+                for (VariantContext vc1 : vc1List) {
+                    // get vc1 data
+                    String vc1ID = vc1.getID();
+                    String vc1Contig = vc1.getContig();
+                    int vc1Start = vc1.getStart();
+                    int vc1End = vc1.getEnd();
+                    Allele vc1Ref = vc1.getReference();
+                    String vc1RefString = vc1Ref.getBaseString();
+                    String vc1AltString = getAltString(vc1);
+                    List<Integer> vc1DP4 = vc1.getAttributeAsIntList("DP4", 0);
+                    int vc1RefForward = vc1DP4.get(0);
+                    int vc1RefReverse = vc1DP4.get(1);
+                    int vc1AltForward = vc1DP4.get(2);
+                    int vc1AltReverse = vc1DP4.get(3); 
+                    List<VariantContext> vc2List = vcf2Loader.query(vc1Contig, vc1Start, vc1End).toList();
+                    for (VariantContext vc2 : vc2List) {
+                        // get vc2 data
+                        String vc2ID = vc2.getID();
+                        String vc2Contig = vc2.getContig();
+                        int vc2Start = vc2.getStart();
+                        int vc2End = vc2.getEnd();
+                        Allele vc2Ref = vc2.getReference();
+                        String vc2RefString = vc2Ref.getBaseString();
+                        String vc2AltString = getAltString(vc2);
+                        List<Integer> vc2DP4 = vc2.getAttributeAsIntList("DP4", 0);
+                        int vc2RefForward = vc2DP4.get(0);
+                        int vc2RefReverse = vc2DP4.get(1);
+                        int vc2AltForward = vc2DP4.get(2);
+                        int vc2AltReverse = vc2DP4.get(3); 
+                        // output
+                        System.out.println(vc1Contig+"\t"+vc1Start+"\t"+vc1RefString+"\t"+vc1AltString+"\t"+
+                                           vc1RefForward+"\t"+vc1RefReverse+"\t"+vc1AltForward+"\t"+vc1AltReverse+"\t"+
+                                           vc2RefForward+"\t"+vc2RefReverse+"\t"+vc2AltForward+"\t"+vc2AltReverse);
+                    }
                 }
             }
         }
