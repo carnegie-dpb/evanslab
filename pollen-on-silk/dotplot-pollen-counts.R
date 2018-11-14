@@ -1,5 +1,10 @@
 ################################################################################
 
+plot(W22$Var1AF+W22$Var1AR, W22$Var2AF+W22$Var2AR, log="xy", xlab="YX24 ALT Count", ylab="S364 ALT Count", xlim=c(1,2e5), ylim=c(1,5e4), cex=0.5)
+lines(c(1,2e5),c(1,5e4),col="blue")
+
+################################################################################
+
 ## ymin = 1
 ## ymax = 1e5
 
@@ -38,46 +43,46 @@
 
 ################################################################################
 
-ymin = 10
-ymax = 5e3
+## ymin = 10
+## ymax = 5e3
 
-xmin = 4
-xmax = 1e3
+## xmin = 4
+## xmax = 1e3
 
-altLine = 0
+## altLine = 0
 
-countRatio = sum(both$Counts.S364*both$AltFrac.S364)/sum(both$Counts.YX24)
+## countRatio = sum(both$Counts.S364*both$AltFrac.S364)/sum(both$Counts.YX24)
 
-plot(both$ATnorm.YX24, both$ATnorm.S364,
-     xlim=c(xmin,xmax), ylim=c(ymin,ymax), cex=0.5,
-     log="xy",
-     xlab="YX24 ALT depth per SNP per gene",
-     ylab="S364 ALT depth per SNP per gene",
-     main="ALT depth per B73 gene at YX24 SNP locations on W22"
-     )
+## plot(both$ATnorm.YX24, both$ATnorm.S364,
+##      xlim=c(xmin,xmax), ylim=c(ymin,ymax), cex=0.5,
+##      log="xy",
+##      xlab="YX24 ALT depth per SNP per gene",
+##      ylab="S364 ALT depth per SNP per gene",
+##      main="ALT depth per B73 gene at YX24 SNP locations on W22"
+##      )
 
-if (altLine>0) {
-    lines(c(altLine,xmax),    c(altLine,altLine), col="blue")
-    lines(c(altLine,altLine), c(altLine,ymax),    col="blue")
-    text(xmax, altLine-1, paste("min ALT=",altLine), col="blue", pos=2)
-}
+## if (altLine>0) {
+##     lines(c(altLine,xmax),    c(altLine,altLine), col="blue")
+##     lines(c(altLine,altLine), c(altLine,ymax),    col="blue")
+##     text(xmax, altLine-1, paste("min ALT=",altLine), col="blue", pos=2)
+## }
 
-lines(c(xmin,xmax), countRatio*c(xmin,xmax), col="blue")
-legend(x="bottomright", bty="n", legend=paste("Adj. count ratio =",round(countRatio,4)), col="blue", text.col="blue", lty=1)
+## lines(c(xmin,xmax), countRatio*c(xmin,xmax), col="blue")
+## legend(x="bottomright", bty="n", legend=paste("Adj. count ratio =",round(countRatio,4)), col="blue", text.col="blue", lty=1)
 
-lines(c(xmin,ymax/(1e1*countRatio)), c(xmin*1e1*countRatio,ymax), col="darkgreen", lty=3)
-lines(c(xmin,ymax/(1e2*countRatio)), c(xmin*1e2*countRatio,ymax), col="darkgreen", lty=3)
-lines(c(xmin,ymax/(1e3*countRatio)), c(xmin*1e3*countRatio,ymax), col="darkgreen", lty=3)
+## lines(c(xmin,ymax/(1e1*countRatio)), c(xmin*1e1*countRatio,ymax), col="darkgreen", lty=3)
+## lines(c(xmin,ymax/(1e2*countRatio)), c(xmin*1e2*countRatio,ymax), col="darkgreen", lty=3)
+## lines(c(xmin,ymax/(1e3*countRatio)), c(xmin*1e3*countRatio,ymax), col="darkgreen", lty=3)
 
-text(ymax/(1e1*countRatio), ymax, "x10", col="darkgreen")
-text(ymax/(1e2*countRatio), ymax, "x100", col="darkgreen")
-text(ymax/(1e3*countRatio), ymax, "x1000", col="darkgreen")
+## text(ymax/(1e1*countRatio), ymax, "x10", col="darkgreen")
+## text(ymax/(1e2*countRatio), ymax, "x100", col="darkgreen")
+## text(ymax/(1e3*countRatio), ymax, "x1000", col="darkgreen")
 
-text(xmax, xmax*(1e1*countRatio), "x10", col="darkgreen")
-text(xmax, xmax*(1e2*countRatio), "x100", col="darkgreen")
-text(xmax, xmax*(1e3*countRatio), "x1000", col="darkgreen")
+## text(xmax, xmax*(1e1*countRatio), "x10", col="darkgreen")
+## text(xmax, xmax*(1e2*countRatio), "x100", col="darkgreen")
+## text(xmax, xmax*(1e3*countRatio), "x1000", col="darkgreen")
 
-text(both$ATnorm.YX24, both$ATnorm.S364, both$Gene, cex=0.5, pos=4)
+## text(both$ATnorm.YX24, both$ATnorm.S364, both$Gene, cex=0.5, pos=4)
 
 ################################################################################
 
