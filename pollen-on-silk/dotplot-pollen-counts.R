@@ -1,33 +1,43 @@
 ################################################################################
 
 xmin = 2
-xmax = 200
+xmax = 2e2
 
-ymin = 200
+ymin = 2e2
 ymax = 3e4
 
 ratio = (W22$Var2AF+W22$Var2AR)/(W22$Var1AF+W22$Var1AR)
 high = ratio>100
 
+ratioBot25 = quantile(ratio)[[2]]
+ratioMedian = quantile(ratio)[[3]]
+ratioTop25 = quantile(ratio)[[4]]
+
 plot(W22$Var1AF+W22$Var1AR, W22$Var2AF+W22$Var2AR, log="xy", xlab="YX24 ALT Count", ylab="S364 ALT Count", xlim=c(xmin,xmax), ylim=c(ymin,ymax), cex=0.5)
+
+lines(c(1,xmax),ratioMedian*c(1,xmax),col="blue")
+lines(c(1,xmax),ratioBot25*c(1,xmax),col="blue", lty=2)
+lines(c(1,xmax),ratioTop25*c(1,xmax),col="blue", lty=2)
+
+lines(c(1,xmax),10*ratioMedian*c(1,xmax),col="darkgreen")
+lines(c(1,xmax),100*ratioMedian*c(1,xmax),col="darkgreen")
+lines(c(1,xmax),1000*ratioMedian*c(1,xmax),col="darkgreen")
+lines(c(1,xmax),10000*ratioMedian*c(1,xmax),col="darkgreen")
+
+## lines(c(1:xmax)-sqrt(c(1:xmax)), ratioMedian*c(1:xmax)+sqrt(ratioMedian*c(1:xmax)), col="blue", lty=2)
+## lines(c(1:xmax)+sqrt(c(1:xmax)), ratioMedian*c(1:xmax)-sqrt(ratioMedian*c(1:xmax)), col="blue", lty=2)
+
 text(W22$Var1AF[high]+W22$Var1AR[high], W22$Var2AF[high]+W22$Var2AR[high], paste(W22$Contig[high],":",W22$Pos[high],sep=""), cex=0.6, pos=4, offset=0.2)
-
-lines(c(1,xmax),median(ratio)*c(1,xmax),col="blue")
-lines(c(1,xmax),10*median(ratio)*c(1,xmax),col="darkgreen")
-lines(c(1,xmax),100*median(ratio)*c(1,xmax),col="darkgreen")
-lines(c(1,xmax),1000*median(ratio)*c(1,xmax),col="darkgreen")
-lines(c(1,xmax),10000*median(ratio)*c(1,xmax),col="darkgreen")
-
-lines(c(1:xmax)-sqrt(c(1:xmax)), median(ratio)*c(1:xmax)+sqrt(median(ratio)*c(1:xmax)), col="blue", lty=2)
-lines(c(1:xmax)+sqrt(c(1:xmax)), median(ratio)*c(1:xmax)-sqrt(median(ratio)*c(1:xmax)), col="blue", lty=2)
+## text(W22$Var1AF[high]+W22$Var1AR[high], W22$Var2AF[high]+W22$Var2AR[high], W22$Gene[high], cex=0.6, pos=4, offset=0.2)
 
 legend(x="bottomright", inset=0.01,
-       c(paste("median ratio =",round(median(ratio),4)),
-         "+/- sqrt(n)"
+       c(paste("75 pctl ratio = ",round(ratioTop25,2)),
+         paste("median ratio =",round(ratioMedian,2)),
+         paste("25 pctl ratio = ",round(ratioBot25,2))
          ),
        text.col=c("blue"),
        col=c("blue"),
-       lty=c(1,2),
+       lty=c(2,1,2),
        bty="n")
 
 ## hist(log2(ratio), breaks=50)
