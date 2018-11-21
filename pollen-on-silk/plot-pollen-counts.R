@@ -24,36 +24,55 @@ xmin = 2
 xmax = 2e5
 
 ymin = 2
-ymax = 1e5
+ymax = 2e5
 
 plot(W22$Var1AT, W22$Var2AT,
      xlim=c(xmin,xmax), ylim=c(ymin,ymax), 
-     log="xy", cex=1.0,
+     log="xy", cex=0.3,
      xlab="YX24 ALT Count", ylab="S364 ALT Count",
-     main="ALT Read Counts on W22"
+     main="ALT Reads on W22 per SNP"
      )
 
 ## text(W22$Var1AT, W22$Var2AT, paste(W22$Contig,":",W22$Pos,sep=""), cex=0.6, pos=4, offset=0.2)
 ## text(W22$Var1AT, W22$Var2AT, W22$Gene, cex=0.6, pos=4, offset=0.2)
 
-## lines(c(1,xmax),1*c(1,xmax),col="darkgreen")
-## lines(c(1,xmax),10*c(1,xmax),col="darkgreen")
-## lines(c(1,xmax),100*c(1,xmax),col="darkgreen")
-## lines(c(1,xmax),1000*c(1,xmax),col="darkgreen")
-## lines(c(1,xmax),10000*c(1,xmax),col="darkgreen")
-
-lines(c(1,xmax),W22.ratioMedian*c(1,xmax),col="blue")
-lines(c(1,xmax),W22.ratioBot25*c(1,xmax),col="blue", lty=2)
-lines(c(1,xmax),W22.ratioTop25*c(1,xmax),col="blue", lty=2)
+lines(c(10,xmax), W22.sumRatio*c(10,xmax), col="blue", lty=2, lwd=2)
 legend(x="bottomright", inset=0.01,
-       c(paste("75 pctl ratio = ",round(W22.ratioTop25,2)),
-         paste("median ratio =",round(W22.ratioMedian,2)),
-         paste("25 pctl ratio = ",round(W22.ratioBot25,2))
-         ),
-       text.col=c("blue"),
-       col=c("blue"),
-       lty=c(2,1,2),
-       bty="n")
+       c(paste("Ratio of sums =",round(W22.sumRatio,2)),
+         "10-folds"),
+       lty=c(2,3),
+       text.col=c("blue","darkgreen"),
+       col=c("blue","darkgreen"),
+       bty="n"
+       )
+
+lines(c(1,xmax),1e-2*W22.sumRatio*c(1,xmax),col="darkgreen", lty=3)
+lines(c(1,xmax),1e-1*W22.sumRatio*c(1,xmax),col="darkgreen", lty=3)
+lines(c(1,xmax),1e+1*W22.sumRatio*c(1,xmax),col="darkgreen", lty=3)
+lines(c(1,xmax),1e+2*W22.sumRatio*c(1,xmax),col="darkgreen", lty=3)
+lines(c(1,xmax),1e+3*W22.sumRatio*c(1,xmax),col="darkgreen", lty=3)
+lines(c(1,xmax),1e+4*W22.sumRatio*c(1,xmax),col="darkgreen", lty=3)
+
+## lines(c(1,xmax),W22.ratioBot1*c(1,xmax),col="blue", lty=4)
+## lines(c(1,xmax),W22.ratioBot10*c(1,xmax),col="blue", lty=3)
+## lines(c(1,xmax),W22.ratioBot25*c(1,xmax),col="blue", lty=2)
+## lines(c(1,xmax),W22.ratioMedian*c(1,xmax),col="blue")
+## lines(c(1,xmax),W22.ratioTop25*c(1,xmax),col="blue", lty=2)
+## lines(c(1,xmax),W22.ratioTop10*c(1,xmax),col="blue", lty=3)
+## lines(c(1,xmax),W22.ratioTop1*c(1,xmax),col="blue", lty=4)
+## legend(x="bottomright", inset=0.01,
+##        c(paste("99 pctl ratio = ",round(W22.ratioTop1,2)),
+##          paste("90 pctl ratio = ",round(W22.ratioTop10,2)),
+##          paste("75 pctl ratio = ",round(W22.ratioTop25,2)),
+##          paste("median ratio =",round(W22.ratioMedian,2)),
+##          paste("25 pctl ratio = ",round(W22.ratioBot25,2)),
+##          paste("10 pctl ratio = ",round(W22.ratioBot10,2)),
+##          paste("1 pctl ratio = ",round(W22.ratioBot1,2))
+##          ),
+##        text.col=c("blue"),
+##        col=c("blue"),
+##        lty=c(4,3,2,1,2,3,4),
+##        bty="n")
 
 ################################################################################
 

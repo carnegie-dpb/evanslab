@@ -15,6 +15,8 @@ W22.Var1Perc = quantile(W22$Var1AT, c(.01, .10, .25, .50, .75, .90, .99))
 W22.Var2Perc = quantile(W22$Var2AT, c(.01, .10, .25, .50, .75, .90, .99))
 W22.ratioPerc = quantile(W22$ratio, c(.01, .10, .25, .50, .75, .90, .99))
 
+W22.sumRatio = sum(W22$Var2AT)/sum(W22$Var1AT)
+
 W22.ratioBot1 = W22.ratioPerc[1]
 W22.ratioBot10 = W22.ratioPerc[2]
 W22.ratioBot25 = W22.ratioPerc[3]
