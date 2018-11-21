@@ -5,7 +5,25 @@
 
 W22 = read.table(file="W22.SNPFilter.tsv", header=TRUE, sep="\t", fill=TRUE)
 ## W22 = read.table(file="W22.SNPFilter.purged.tsv", header=TRUE, sep="\t", fill=TRUE)
+
 W22$Gene = substring(W22$Gene,6)
+W22$Var1AT = W22$Var1AF + W22$Var1AR
+W22$Var2AT = W22$Var2AF + W22$Var2AR
+W22$ratio = W22$Var2AT / W22$Var1AT
+
+W22.Var1Perc = quantile(W22$Var1AT, c(.01, .10, .25, .50, .75, .90, .99))
+W22.Var2Perc = quantile(W22$Var2AT, c(.01, .10, .25, .50, .75, .90, .99))
+W22.ratioPerc = quantile(W22$ratio, c(.01, .10, .25, .50, .75, .90, .99))
+
+W22.ratioBot1 = W22.ratioPerc[1]
+W22.ratioBot10 = W22.ratioPerc[2]
+W22.ratioBot25 = W22.ratioPerc[3]
+W22.ratioMedian= W22.ratioPerc[4]
+W22.ratioTop25 = W22.ratioPerc[5]
+W22.ratioTop10 = W22.ratioPerc[6]
+W22.ratioTop1 = W22.ratioPerc[7]
+
+## these are counted against genes
 
 S364 = read.table(file="S364.W22.SNPReadCounter.0.1.1.1.0.tsv", header=TRUE, sep="\t")
 S364$Gene = substring(S364$Gene,6)
@@ -22,4 +40,3 @@ YX24$AT = YX24$AF + YX24$AR
 YX24$AltFrac = YX24$AT/(YX24$AT + YX24$RT)
 YX24$RTnorm = YX24$RT/YX24$Count
 YX24$ATnorm = YX24$AT/YX24$Count
-

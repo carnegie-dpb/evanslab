@@ -6,23 +6,17 @@
 ## ymin = 1e-3
 ## ymax = 2e+3
 
-## ratio = (W22$Var2AF+W22$Var2AR)/(W22$Var1AF+W22$Var1AR)
-
-## ratioBot25 = quantile(ratio)[[2]]
-## ratioMedian = quantile(ratio)[[3]]
-## ratioTop25 = quantile(ratio)[[4]]
-
-## plot(W22$Var1AF+W22$Var1AR, ratio,
+## plot(W22$Var1AT, W22$ratio,
 ##      xlim=c(xmin,xmax), ylim=c(ymin,ymax), 
 ##      log="xy", cex=0.5,
 ##      xlab="YX24 ALT Count", ylab="S364 ALT Count / YX24 ALT Count"
 ##      )
 
-## lines(c(xmin,xmax), c(ratioBot25,ratioBot25), col="blue", lty=2)
-## lines(c(xmin,xmax), c(ratioMedian,ratioMedian), col="blue")
-## lines(c(xmin,xmax), c(ratioTop25,ratioTop25), col="blue", lty=2)
+## lines(c(xmin,xmax), c(W22.ratioBot25,W22.ratioBot25), col="blue", lty=2)
+## lines(c(xmin,xmax), c(W22.ratioMedian,W22.ratioMedian), col="blue")
+## lines(c(xmin,xmax), c(W22.ratioTop25,W22.ratioTop25), col="blue", lty=2)
 
-## text(W22$Var1AF+W22$Var1AR, ratio, paste(W22$Contig,":",W22$Pos,sep=""), cex=0.6, pos=4, offset=0.2)
+## text(W22$Var1AT, W22$ratio, paste(W22$Contig,":",W22$Pos,sep=""), cex=0.6, pos=4, offset=0.2)
 
 ################################################################################
 
@@ -32,36 +26,29 @@ xmax = 2e5
 ymin = 2
 ymax = 1e5
 
-ratio = (W22$Var2AF+W22$Var2AR)/(W22$Var1AF+W22$Var1AR)
-high = ratio>10
-
-ratioBot25 = quantile(ratio)[[2]]
-ratioMedian = quantile(ratio)[[3]]
-ratioTop25 = quantile(ratio)[[4]]
-
-plot(W22$Var1AF+W22$Var1AR, W22$Var2AF+W22$Var2AR,
+plot(W22$Var1AT, W22$Var2AT,
      xlim=c(xmin,xmax), ylim=c(ymin,ymax), 
      log="xy", cex=1.0,
      xlab="YX24 ALT Count", ylab="S364 ALT Count",
      main="ALT Read Counts on W22"
      )
 
-## text(W22$Var1AF+W22$Var1AR, W22$Var2AF+W22$Var2AR, paste(W22$Contig,":",W22$Pos,sep=""), cex=0.6, pos=4, offset=0.2)
-## text(W22$Var1AF+W22$Var1AR, W22$Var2AF+W22$Var2AR, W22$Gene, cex=0.6, pos=4, offset=0.2)
+## text(W22$Var1AT, W22$Var2AT, paste(W22$Contig,":",W22$Pos,sep=""), cex=0.6, pos=4, offset=0.2)
+## text(W22$Var1AT, W22$Var2AT, W22$Gene, cex=0.6, pos=4, offset=0.2)
 
-lines(c(1,xmax),1*c(1,xmax),col="darkgreen")
-lines(c(1,xmax),10*c(1,xmax),col="darkgreen")
-lines(c(1,xmax),100*c(1,xmax),col="darkgreen")
-lines(c(1,xmax),1000*c(1,xmax),col="darkgreen")
-lines(c(1,xmax),10000*c(1,xmax),col="darkgreen")
+## lines(c(1,xmax),1*c(1,xmax),col="darkgreen")
+## lines(c(1,xmax),10*c(1,xmax),col="darkgreen")
+## lines(c(1,xmax),100*c(1,xmax),col="darkgreen")
+## lines(c(1,xmax),1000*c(1,xmax),col="darkgreen")
+## lines(c(1,xmax),10000*c(1,xmax),col="darkgreen")
 
-lines(c(1,xmax),ratioMedian*c(1,xmax),col="blue")
-lines(c(1,xmax),ratioBot25*c(1,xmax),col="blue", lty=2)
-lines(c(1,xmax),ratioTop25*c(1,xmax),col="blue", lty=2)
+lines(c(1,xmax),W22.ratioMedian*c(1,xmax),col="blue")
+lines(c(1,xmax),W22.ratioBot25*c(1,xmax),col="blue", lty=2)
+lines(c(1,xmax),W22.ratioTop25*c(1,xmax),col="blue", lty=2)
 legend(x="bottomright", inset=0.01,
-       c(paste("75 pctl ratio = ",round(ratioTop25,2)),
-         paste("median ratio =",round(ratioMedian,2)),
-         paste("25 pctl ratio = ",round(ratioBot25,2))
+       c(paste("75 pctl ratio = ",round(W22.ratioTop25,2)),
+         paste("median ratio =",round(W22.ratioMedian,2)),
+         paste("25 pctl ratio = ",round(W22.ratioBot25,2))
          ),
        text.col=c("blue"),
        col=c("blue"),
@@ -155,7 +142,7 @@ legend(x="bottomright", inset=0.01,
 
 ## both.positive = both$Counts.YX24>0 & both$Counts.S364>0
 
-## both.ratioMedian = median(both$TPM.S364[both.positive]/both$TPM.YX24[both.positive])
+## both.W22.ratioMedian = median(both$TPM.S364[both.positive]/both$TPM.YX24[both.positive])
 ## both.ratioSD = sd(both$TPM.S364[both.positive]/both$TPM.YX24[both.positive])
 
 ## both.logRatioMedian = median(log10(both$TPM.S364[both.positive]/both$TPM.YX24[both.positive]))
@@ -172,32 +159,32 @@ legend(x="bottomright", inset=0.01,
 ##      log="xy",
 ##      xlab=paste("YX24 TPM (featureCounts)"),
 ##      ylab=paste("S364 TPM (featureCounts)"),
-##      main=paste("Gene TPM on B73 for loci with S364 pollen\nmedian ratio = ",round(both.ratioMedian,2),"(blue line)")
+##      main=paste("Gene TPM on B73 for loci with S364 pollen\nmedian ratio = ",round(both.W22.ratioMedian,2),"(blue line)")
 ##      )
 
-## lines(c(xmin,xmax), both.ratioMedian*c(xmin,xmax), col="blue")
+## lines(c(xmin,xmax), both.W22.ratioMedian*c(xmin,xmax), col="blue")
 
-## lines(c(xmin,xmax), 1e-1*both.ratioMedian*c(xmin,xmax), col="red")
-## lines(c(xmin,xmax), 1e1*both.ratioMedian*c(xmin,xmax), col="darkgreen")
-## lines(c(xmin,xmax), 1e2*both.ratioMedian*c(xmin,xmax), col="darkgreen")
-## lines(c(xmin,xmax), 1e3*both.ratioMedian*c(xmin,xmax), col="darkgreen")
+## lines(c(xmin,xmax), 1e-1*both.W22.ratioMedian*c(xmin,xmax), col="red")
+## lines(c(xmin,xmax), 1e1*both.W22.ratioMedian*c(xmin,xmax), col="darkgreen")
+## lines(c(xmin,xmax), 1e2*both.W22.ratioMedian*c(xmin,xmax), col="darkgreen")
+## lines(c(xmin,xmax), 1e3*both.W22.ratioMedian*c(xmin,xmax), col="darkgreen")
 
-## text(xmax, xmax*1e-1*both.ratioMedian, "x0.1", col="red", pos=3)
-## text(ymax/both.ratioMedian, ymax, "median", col="blue")
-## text(ymax/(1e1*both.ratioMedian), ymax, "x10", col="darkgreen")
-## text(ymax/(1e2*both.ratioMedian), ymax, "x100", col="darkgreen")
-## text(ymax/(1e3*both.ratioMedian), ymax, "x1000", col="darkgreen")
+## text(xmax, xmax*1e-1*both.W22.ratioMedian, "x0.1", col="red", pos=3)
+## text(ymax/both.W22.ratioMedian, ymax, "median", col="blue")
+## text(ymax/(1e1*both.W22.ratioMedian), ymax, "x10", col="darkgreen")
+## text(ymax/(1e2*both.W22.ratioMedian), ymax, "x100", col="darkgreen")
+## text(ymax/(1e3*both.W22.ratioMedian), ymax, "x1000", col="darkgreen")
 
-## ## lines(xmin:xmax-sqrt(xmin:xmax), .10*both.ratioMedian*(xmin:xmax)+sqrt(.10*both.ratioMedian*(xmin:xmax)), col="gray")
-## ## lines(xmin:xmax+sqrt(xmin:xmax), .10*both.ratioMedian*(xmin:xmax)-sqrt(.10*both.ratioMedian*(xmin:xmax)), col="gray")
-## ## lines(xmin:xmax-sqrt(xmin:xmax), both.ratioMedian*(xmin:xmax)+sqrt(both.ratioMedian*(xmin:xmax)), col="gray")
-## ## lines(xmin:xmax+sqrt(xmin:xmax), both.ratioMedian*(xmin:xmax)-sqrt(both.ratioMedian*(xmin:xmax)), col="gray")
-## ## lines(xmin:xmax-sqrt(xmin:xmax), 10*both.ratioMedian*(xmin:xmax)+sqrt(10*both.ratioMedian*(xmin:xmax)), col="gray")
-## ## lines(xmin:xmax+sqrt(xmin:xmax), 10*both.ratioMedian*(xmin:xmax)-sqrt(10*both.ratioMedian*(xmin:xmax)), col="gray")
-## ## lines(xmin:xmax-sqrt(xmin:xmax), 100*both.ratioMedian*(xmin:xmax)+sqrt(100*both.ratioMedian*(xmin:xmax)), col="gray")
-## ## lines(xmin:xmax+sqrt(xmin:xmax), 100*both.ratioMedian*(xmin:xmax)-sqrt(100*both.ratioMedian*(xmin:xmax)), col="gray")
-## ## lines(xmin:xmax-sqrt(xmin:xmax), 1000*both.ratioMedian*(xmin:xmax)+sqrt(1000*both.ratioMedian*(xmin:xmax)), col="gray")
-## ## lines(xmin:xmax+sqrt(xmin:xmax), 1000*both.ratioMedian*(xmin:xmax)-sqrt(1000*both.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax-sqrt(xmin:xmax), .10*both.W22.ratioMedian*(xmin:xmax)+sqrt(.10*both.W22.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax+sqrt(xmin:xmax), .10*both.W22.ratioMedian*(xmin:xmax)-sqrt(.10*both.W22.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax-sqrt(xmin:xmax), both.W22.ratioMedian*(xmin:xmax)+sqrt(both.W22.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax+sqrt(xmin:xmax), both.W22.ratioMedian*(xmin:xmax)-sqrt(both.W22.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax-sqrt(xmin:xmax), 10*both.W22.ratioMedian*(xmin:xmax)+sqrt(10*both.W22.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax+sqrt(xmin:xmax), 10*both.W22.ratioMedian*(xmin:xmax)-sqrt(10*both.W22.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax-sqrt(xmin:xmax), 100*both.W22.ratioMedian*(xmin:xmax)+sqrt(100*both.W22.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax+sqrt(xmin:xmax), 100*both.W22.ratioMedian*(xmin:xmax)-sqrt(100*both.W22.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax-sqrt(xmin:xmax), 1000*both.W22.ratioMedian*(xmin:xmax)+sqrt(1000*both.W22.ratioMedian*(xmin:xmax)), col="gray")
+## ## lines(xmin:xmax+sqrt(xmin:xmax), 1000*both.W22.ratioMedian*(xmin:xmax)-sqrt(1000*both.W22.ratioMedian*(xmin:xmax)), col="gray")
 
 ## ##text(both$TPM.YX24, both$TPM.S364, both$Gene, cex=0.6, pos=4)
 
