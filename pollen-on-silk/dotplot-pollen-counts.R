@@ -1,35 +1,63 @@
 ################################################################################
 
-xmin = 2
-xmax = 2e2
+## xmin = 1
+## xmax = 1e6
 
-ymin = 2e2
-ymax = 3e4
+## ymin = 1e-3
+## ymax = 2e+3
+
+## ratio = (W22$Var2AF+W22$Var2AR)/(W22$Var1AF+W22$Var1AR)
+
+## ratioBot25 = quantile(ratio)[[2]]
+## ratioMedian = quantile(ratio)[[3]]
+## ratioTop25 = quantile(ratio)[[4]]
+
+## plot(W22$Var1AF+W22$Var1AR, ratio,
+##      xlim=c(xmin,xmax), ylim=c(ymin,ymax), 
+##      log="xy", cex=0.5,
+##      xlab="YX24 ALT Count", ylab="S364 ALT Count / YX24 ALT Count"
+##      )
+
+## lines(c(xmin,xmax), c(ratioBot25,ratioBot25), col="blue", lty=2)
+## lines(c(xmin,xmax), c(ratioMedian,ratioMedian), col="blue")
+## lines(c(xmin,xmax), c(ratioTop25,ratioTop25), col="blue", lty=2)
+
+## text(W22$Var1AF+W22$Var1AR, ratio, paste(W22$Contig,":",W22$Pos,sep=""), cex=0.6, pos=4, offset=0.2)
+
+################################################################################
+
+xmin = 2
+xmax = 2e5
+
+ymin = 2
+ymax = 1e5
 
 ratio = (W22$Var2AF+W22$Var2AR)/(W22$Var1AF+W22$Var1AR)
-high = ratio>100
+high = ratio>10
 
 ratioBot25 = quantile(ratio)[[2]]
 ratioMedian = quantile(ratio)[[3]]
 ratioTop25 = quantile(ratio)[[4]]
 
-plot(W22$Var1AF+W22$Var1AR, W22$Var2AF+W22$Var2AR, log="xy", xlab="YX24 ALT Count", ylab="S364 ALT Count", xlim=c(xmin,xmax), ylim=c(ymin,ymax), cex=0.5)
+plot(W22$Var1AF+W22$Var1AR, W22$Var2AF+W22$Var2AR,
+     xlim=c(xmin,xmax), ylim=c(ymin,ymax), 
+     log="xy", cex=1.0,
+     xlab="YX24 ALT Count", ylab="S364 ALT Count",
+     main="ALT Read Counts on W22"
+     )
+
+## text(W22$Var1AF+W22$Var1AR, W22$Var2AF+W22$Var2AR, paste(W22$Contig,":",W22$Pos,sep=""), cex=0.6, pos=4, offset=0.2)
+## text(W22$Var1AF+W22$Var1AR, W22$Var2AF+W22$Var2AR, W22$Gene, cex=0.6, pos=4, offset=0.2)
+
+lines(c(1,xmax),1*c(1,xmax),col="darkgreen")
+lines(c(1,xmax),10*c(1,xmax),col="darkgreen")
+lines(c(1,xmax),100*c(1,xmax),col="darkgreen")
+lines(c(1,xmax),1000*c(1,xmax),col="darkgreen")
+lines(c(1,xmax),10000*c(1,xmax),col="darkgreen")
 
 lines(c(1,xmax),ratioMedian*c(1,xmax),col="blue")
 lines(c(1,xmax),ratioBot25*c(1,xmax),col="blue", lty=2)
 lines(c(1,xmax),ratioTop25*c(1,xmax),col="blue", lty=2)
-
-lines(c(1,xmax),10*ratioMedian*c(1,xmax),col="darkgreen")
-lines(c(1,xmax),100*ratioMedian*c(1,xmax),col="darkgreen")
-lines(c(1,xmax),1000*ratioMedian*c(1,xmax),col="darkgreen")
-lines(c(1,xmax),10000*ratioMedian*c(1,xmax),col="darkgreen")
-
-## lines(c(1:xmax)-sqrt(c(1:xmax)), ratioMedian*c(1:xmax)+sqrt(ratioMedian*c(1:xmax)), col="blue", lty=2)
-## lines(c(1:xmax)+sqrt(c(1:xmax)), ratioMedian*c(1:xmax)-sqrt(ratioMedian*c(1:xmax)), col="blue", lty=2)
-
-text(W22$Var1AF[high]+W22$Var1AR[high], W22$Var2AF[high]+W22$Var2AR[high], paste(W22$Contig[high],":",W22$Pos[high],sep=""), cex=0.6, pos=4, offset=0.2)
-## text(W22$Var1AF[high]+W22$Var1AR[high], W22$Var2AF[high]+W22$Var2AR[high], W22$Gene[high], cex=0.6, pos=4, offset=0.2)
-
 legend(x="bottomright", inset=0.01,
        c(paste("75 pctl ratio = ",round(ratioTop25,2)),
          paste("median ratio =",round(ratioMedian,2)),
@@ -39,8 +67,6 @@ legend(x="bottomright", inset=0.01,
        col=c("blue"),
        lty=c(2,1,2),
        bty="n")
-
-## hist(log2(ratio), breaks=50)
 
 ################################################################################
 
@@ -122,30 +148,6 @@ legend(x="bottomright", inset=0.01,
 ## text(xmax, xmax*(1e3*countRatio), "x1000", col="darkgreen")
 
 ## text(both$ATnorm.YX24, both$ATnorm.S364, both$Gene, cex=0.5, pos=4)
-
-################################################################################
-
-## medianLogVal = median(log10(both$Ratio))
-## sdLogVal = sd(log10(both$Ratio))
-
-## hist(
-##     log10(both$Ratio),
-##     breaks=25,
-##     main="Ratio of S365/YX24 ALT depth per gene\n(only those without SNPs on B73)",
-##     xlab = "log10(S365/YX24)"
-## )
-
-## lines(c(medianLogVal,medianLogVal), c(0,par()$yaxp[2]), col="blue")
-## lines(c(medianLogVal+sdLogVal,medianLogVal+sdLogVal), c(0,par()$yaxp[2]), col="red")
-## lines(c(medianLogVal-sdLogVal,medianLogVal-sdLogVal), c(0,par()$yaxp[2]), col="red")
-## lines(c(medianLogVal+2*sdLogVal,medianLogVal+2*sdLogVal), c(0,par()$yaxp[2]), col="red", lty=2)
-## lines(c(medianLogVal-2*sdLogVal,medianLogVal-2*sdLogVal), c(0,par()$yaxp[2]), col="red", lty=2)
-
-## legend(x="topright", bty="n",
-##        c(paste("median ratio =",round(10^medianLogVal,2)),
-##          paste("s.d. ratio =",round(10^sdLogVal,2))),
-##        text.col=c("blue","red")
-##        )
 
 ################################################################################
 

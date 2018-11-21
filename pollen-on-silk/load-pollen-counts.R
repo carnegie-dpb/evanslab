@@ -4,6 +4,7 @@
 ##
 
 W22 = read.table(file="W22.SNPFilter.tsv", header=TRUE, sep="\t", fill=TRUE)
+## W22 = read.table(file="W22.SNPFilter.purged.tsv", header=TRUE, sep="\t", fill=TRUE)
 W22$Gene = substring(W22$Gene,6)
 
 S364 = read.table(file="S364.W22.SNPReadCounter.0.1.1.1.0.tsv", header=TRUE, sep="\t")
