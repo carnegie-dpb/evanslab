@@ -6,7 +6,7 @@
 ## ymin = 1e-3
 ## ymax = 2e+3
 
-## plot(W22$Var1ATot, W22$ratio,
+## plot(W22$Var1ATot, W22$Ratio,
 ##      xlim=c(xmin,xmax), ylim=c(ymin,ymax), 
 ##      log="xy", cex=0.5,
 ##      xlab="YX24 ALT Count", ylab="S364 ALT Count / YX24 ALT Count"
@@ -16,7 +16,7 @@
 ## lines(c(xmin,xmax), c(W22.ratioMedian,W22.ratioMedian), col="blue")
 ## lines(c(xmin,xmax), c(W22.ratioTop25,W22.ratioTop25), col="blue", lty=2)
 
-## text(W22$Var1ATot, W22$ratio, paste(W22$Contig,":",W22$Pos,sep=""), cex=0.6, pos=4, offset=0.2)
+## text(W22$Var1ATot, W22$Ratio, paste(W22$Contig,":",W22$Pos,sep=""), cex=0.6, pos=4, offset=0.2)
 
 ################################################################################
 
@@ -24,7 +24,7 @@ xmin = 2
 xmax = 2e5
 
 ymin = 2
-ymax = 2e4
+ymax = 2e5
 
 plot(W22$Var1ATot, W22$Var2ATot,
      xlim=c(xmin,xmax), ylim=c(ymin,ymax), 
@@ -43,7 +43,7 @@ lowRatio = W22$Ratio<0.01;
 
 lines(c(10,xmax), W22.sumRatio*c(10,xmax), col="blue", lty=2, lwd=2)
 legend(x="bottomright", inset=0.01,
-       c(paste("Ratio of sums =",round(W22.sumRatio,2)),
+       c(paste("Ratio of sums =",round(W22.sumRatio,4)),
          "10-folds"),
        lty=c(2,3),
        text.col=c("blue","darkgreen"),
