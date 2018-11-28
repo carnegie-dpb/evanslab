@@ -6,7 +6,7 @@
 ## ymin = 1e-3
 ## ymax = 2e+3
 
-## plot(W22$Var1AT, W22$ratio,
+## plot(W22$Var1ATot, W22$ratio,
 ##      xlim=c(xmin,xmax), ylim=c(ymin,ymax), 
 ##      log="xy", cex=0.5,
 ##      xlab="YX24 ALT Count", ylab="S364 ALT Count / YX24 ALT Count"
@@ -16,7 +16,7 @@
 ## lines(c(xmin,xmax), c(W22.ratioMedian,W22.ratioMedian), col="blue")
 ## lines(c(xmin,xmax), c(W22.ratioTop25,W22.ratioTop25), col="blue", lty=2)
 
-## text(W22$Var1AT, W22$ratio, paste(W22$Contig,":",W22$Pos,sep=""), cex=0.6, pos=4, offset=0.2)
+## text(W22$Var1ATot, W22$ratio, paste(W22$Contig,":",W22$Pos,sep=""), cex=0.6, pos=4, offset=0.2)
 
 ################################################################################
 
@@ -24,17 +24,22 @@ xmin = 2
 xmax = 2e5
 
 ymin = 2
-ymax = 2e5
+ymax = 2e4
 
-plot(W22$Var1AT, W22$Var2AT,
+plot(W22$Var1ATot, W22$Var2ATot,
      xlim=c(xmin,xmax), ylim=c(ymin,ymax), 
      log="xy", cex=0.3,
      xlab="YX24 ALT Count", ylab="S364 ALT Count",
      main="ALT Reads on W22 per SNP"
      )
 
-## text(W22$Var1AT, W22$Var2AT, paste(W22$Contig,":",W22$Pos,sep=""), cex=0.6, pos=4, offset=0.2)
-## text(W22$Var1AT, W22$Var2AT, W22$Gene, cex=0.6, pos=4, offset=0.2)
+highRatio = W22$Ratio>10;
+lowRatio = W22$Ratio<0.01;
+    
+## text(W22$Var1ATot, W22$Var2ATot, paste(W22$Contig,":",W22$Pos,sep=""), cex=0.6, pos=4, offset=0.2)
+
+## text(W22$Var1ATot[highRatio], W22$Var2ATot[highRatio], W22$Gene[highRatio], cex=0.6, pos=4, offset=0.2)
+## text(W22$Var1ATot[lowRatio], W22$Var2ATot[lowRatio], W22$Gene[lowRatio], cex=0.6, pos=4, offset=0.2)
 
 lines(c(10,xmax), W22.sumRatio*c(10,xmax), col="blue", lty=2, lwd=2)
 legend(x="bottomright", inset=0.01,

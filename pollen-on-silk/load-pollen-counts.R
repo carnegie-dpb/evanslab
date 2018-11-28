@@ -4,18 +4,14 @@
 ##
 
 W22 = read.table(file="W22.SNPFilter.tsv", header=TRUE, sep="\t", fill=TRUE)
-## W22 = read.table(file="W22.SNPFilter.purged.tsv", header=TRUE, sep="\t", fill=TRUE)
 
 W22$Gene = substring(W22$Gene,6)
-W22$Var1AT = W22$Var1AF + W22$Var1AR
-W22$Var2AT = W22$Var2AF + W22$Var2AR
-W22$ratio = W22$Var2AT / W22$Var1AT
 
-W22.Var1Perc = quantile(W22$Var1AT, c(.01, .10, .25, .50, .75, .90, .99))
-W22.Var2Perc = quantile(W22$Var2AT, c(.01, .10, .25, .50, .75, .90, .99))
+W22.Var1Perc = quantile(W22$Var1ATot, c(.01, .10, .25, .50, .75, .90, .99))
+W22.Var2Perc = quantile(W22$Var2ATot, c(.01, .10, .25, .50, .75, .90, .99))
 W22.ratioPerc = quantile(W22$ratio, c(.01, .10, .25, .50, .75, .90, .99))
 
-W22.sumRatio = sum(W22$Var2AT)/sum(W22$Var1AT)
+W22.sumRatio = sum(W22$Var2ATot)/sum(W22$Var1ATot)
 
 W22.ratioBot1 = W22.ratioPerc[1]
 W22.ratioBot10 = W22.ratioPerc[2]
