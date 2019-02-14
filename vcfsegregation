@@ -1,0 +1,2 @@
+#!/bin/sh
+java -server -cp "build/install/evanslab-java/lib/*" edu.carnegiescience.dpb.evanslab.VCFSegregation /home/shokin/EvansLab/ig1/BWA-merged.vcf.gz BWA-FMig1NT BWA-FMTig1 645 tsv
