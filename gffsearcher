@@ -1,0 +1,2 @@
+#!/bin/sh
+java -server -cp "build/install/evanslab-java/lib/*" edu.carnegiescience.dpb.evanslab.GFFSearcher /home/shokin/genomes/Maize/B73v4/Zea_mays.B73_RefGen_v4.41.gene.gff3 /home/shokin/EvansLab/ig1/ig1.tsv
