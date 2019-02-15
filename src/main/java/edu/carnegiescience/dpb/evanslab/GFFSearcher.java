@@ -23,25 +23,21 @@ import org.biojava.nbio.genome.parsers.gff.Location;
  *
  * @author Sam Hokin
  */
-public class GFFSearcher implements BiConsumer<String,String> {
+public class GFFSearcher {
 
-    String gffFilename, locFilename;
-    GFFLoader loader;
-    ConcurrentHashMap<String,String> locValues;
-    ConcurrentHashMap<String,String> geneLocValues;
-    
-    GFFSearcher(String gffFilename, String locFilename) throws IOException {
-        this.gffFilename = gffFilename;
-        this.locFilename = locFilename;
-        loader = new GFFLoader(gffFilename);
-    }
+    public static void main(String[] args) throws Exception {
+        if (args.length!=2) {
+            System.out.println("Usage GFFSearcher <gff-file> <locations-file>");
+            System.exit(0);
+        }
+        String gffFilename = args[0];
+        String locFilename = args[1];
 
-    /**
-     * Load the positions and values in from the locations file.
-     */
-    void readLocFile() throws FileNotFoundException, IOException {
+        GFFLoader loader = new GFFLoader(gffFilename);
+
+        // Load the positions and values in from the locations file.
         BufferedReader reader = new BufferedReader(new FileReader(locFilename));
-        locValues = new ConcurrentHashMap<>();
+        String oldContig = "";
         int oldPos = 0;
         String line;
         while ((line=reader.readLine())!=null) {
@@ -52,74 +48,26 @@ public class GFFSearcher implements BiConsumer<String,String> {
             }
             String[] parts = line.split("\t");
             String contig = parts[0];
+            if (!contig.equals(oldContig)) {
+                oldContig = contig;
+                System.out.println("variableStep chrom="+contig);
+            }                
             int pos = Integer.parseInt(parts[1]);
             String value = parts[10];
             if (pos!=oldPos) {
                 oldPos = pos;
-                locValues.put(contig+":"+pos, value);
+                Location location = new Location(pos,pos);
+                try {
+                    FeatureList overlapping = loader.search(contig, location);
+                    if (overlapping.size()>0) {
+                        System.out.println(pos+"\t"+value);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.exit(1);
+                }
             }
         }
         reader.close();
-    }
-
-    /**
-     * Search for overlap between the locValues and the genes.
-     */
-    void search() {
-        locValues.forEach(1, this);
-    }
-
-    /**
-     * BiConsumer method to do the searching.
-     */
-    public void accept(String loc, String val) {
-        // perform the search and add result to the geneLocValues map
-        String[] parts = loc.split(":");
-        String contig = parts[0];
-        int pos = Integer.parseInt(parts[1]);
-        Location location = new Location(pos,pos);
-        try {
-            FeatureList overlapping = loader.search(contig, location);
-            if (overlapping.size()>0) {
-                geneLocValues.put(loc, val);
-            }
-        } catch (Exception e) {
-            // do nothing
-        }
-    }
-
-    /**
-     * Print the results in wig format.
-     */
-    void printWig() {
-        String oldContig = "";
-        for (String loc : geneLocValues.keySet()) {
-            String value = geneLocValues.get(loc);
-            String[] parts = loc.split(":");
-            String contig = parts[0];
-            int pos = Integer.parseInt(parts[1]);
-            if (!contig.equals(oldContig)) {
-                oldContig = contig;
-                System.out.println("variableStep chrom="+contig);
-            }
-            System.out.println(pos+"\t"+value);
-        }
-    }
-    
-    /**
-     * Command-line operation.
-     */
-    public static void main(String[] args) throws Exception {
-        if (args.length!=2) {
-            System.out.println("Usage GFFSearcher <gff-file> <locations-file>");
-            System.exit(0);
-        }
-        String gffFilename = args[0];
-        String locFilename = args[1];
-        
-        GFFSearcher searcher = new GFFSearcher(gffFilename, locFilename);
-        searcher.readLocFile();
-        searcher.search();
-        searcher.printWig();
     }
 }
