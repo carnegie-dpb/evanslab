@@ -39,20 +39,26 @@ public class VCFLoader {
     }
 
     /**
-     * Main class outputs a tab-delimited remix of a VCF file
+     * Main class outputs a tab-delimited remix of a VCF file. Specify whether you want SNPs only.
      */
     public static void main(String[] args) {
-        if (args.length!=1) {
-            System.out.println("Usage VCFLoader <vcf-file>");
+        if (args.length==0 || args.length>2) {
+            System.out.println("Usage VCFLoader <vcf-file> [allrecords]");
             System.exit(0);
         }
 
         String vcfFilename = args[0];
+        // default is to output only SNP records
+        boolean allRecords = false;
+        if (args.length>1) {
+            allRecords = Boolean.parseBoolean(args[1]);
+        }
+        
         VCFLoader loader = new VCFLoader(vcfFilename);
         loader.load();
 
         for (VariantContext vc : loader.vcList) {
-            if (vc.isSNP()) {
+            if (allRecords || vc.isSNP()) {
                 // values
                 String id = vc.getID();
                 String source = vc.getSource();

@@ -23,8 +23,8 @@ import org.mskcc.cbio.portal.stats.FisherExact;
 public class VCFSegregation {
 
     // HACK - avoid scaffolds
-    static List<String> allowedContigs = Arrays.asList("1","2","3","4","5","6","7","8","9","10","Mt","Pt");
-
+    static List<String> allowedContigs = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
+    
     /**
      * Main class outputs a tab-delimited summary of segregation per locus that has calls for both samples.
      */

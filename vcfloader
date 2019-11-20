@@ -1,0 +1,3 @@
+#!/bin/sh
+## Usage: VCFLoader <vcf-file> [allrecords]
+java -server -Xmx8g -Xms2g -cp "build/install/evanslab-java/lib/*" edu.carnegiescience.dpb.evanslab.VCFLoader $1 $2

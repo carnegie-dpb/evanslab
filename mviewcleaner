@@ -1,0 +1,2 @@
+#!/bin/sh
+java -server -cp "/home/shokin/java/evanslab/build/classes/java/main" MviewCleaner $1
