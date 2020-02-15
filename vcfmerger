@@ -1,2 +1,4 @@
+#!/bin/sh
 # Usage: VCFMerger file.vcf tab|csv minDifference maxMissing minQ minAvgQ minHom minHet
-java -cp classes:lib/htsjdk.jar edu.carnegiescience.dpb.evanslab.VCFMerger ~/Evans/GBS/all.filted.SNP.vcf tab alleles 0 100 0 0 0 0
+VCF=/home/shokin/EvansLab/ig1/all.filted.SNP.vcf
+java -server -Xmx8g -Xms2g -cp "build/install/evanslab-java/lib/*" edu.carnegiescience.dpb.evanslab.VCFMerger $VCF tab alleles 0 100 0 0 0 0

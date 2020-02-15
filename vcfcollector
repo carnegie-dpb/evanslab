@@ -1,0 +1,6 @@
+#!/bin/sh
+# Usage: VCFCollector file.vcf.gz
+
+VCF="/home/shokin/EvansLab/ig1/GBS/results/4.SNP_VarDetect/ALL.filted.SNP.vcf.gz"
+
+java -server -Xmx8g -Xms1g -cp "build/install/evanslab-java/lib/*" edu.carnegiescience.dpb.evanslab.VCFCollector $VCF
