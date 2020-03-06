@@ -1,1 +1,6 @@
-java -cp classes edu.carnegiescience.dpb.evanslab.SNPSegregation ~/EvansLab/Twinning/results/4.SNP_VarDetect VT avinput.variant_function.snp 1 48 49 96 $1
+#!/bin/sh
+SNPDIR=/home/shokin/EvansLab/ig1/GBS/results/4.SNP_VarDetect
+PREFIX=VT
+SUFFIX=avinput.variant_function.snp
+
+java -server -cp "build/install/evanslab-java/lib/*" edu.carnegiescience.dpb.evanslab.SNPSegregation $SNPDIR $PREFIX $SUFFIX 1 48 49 96 $1

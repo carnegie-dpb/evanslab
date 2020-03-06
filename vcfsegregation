@@ -1,10 +1,14 @@
 #!/bin/sh
 ## Usage: VCFSegregation <vcf-file> <sample1> <sample2> <maxSize> <tsv|wig>
 
-VCFFILE="/home/shokin/evanslab-R/ig1/gsnap-Zm-B73-REFERENCE-GRAMENE-4.0-combined.vars.vcf.gz"
-SAMPLE1="gsnap-Zm-B73-REFERENCE-GRAMENE-4.0-FMig1NT.f2.sorted.bam"
-SAMPLE2="gsnap-Zm-B73-REFERENCE-GRAMENE-4.0-FMTig1.f2.sorted.bam"
+#VCFFILE="/home/shokin/evanslab-R/ig1/gsnap-Zm-B73-REFERENCE-GRAMENE-4.0-combined.vars.vcf.gz"
+#SAMPLE1="gsnap-Zm-B73-REFERENCE-GRAMENE-4.0-FMig1NT.f2.sorted.bam"
+#SAMPLE2="gsnap-Zm-B73-REFERENCE-GRAMENE-4.0-FMTig1.f2.sorted.bam"
+#MAXSIZE=200000
 
+VCFFILE="/home/shokin/evanslab-R/ig1/gsnap-Zm00001d.2.CDS-combined.vars.vcf.gz"
+SAMPLE1="gsnap-Zm00001d.2.CDS-FMig1NT.f2.sorted.bam"
+SAMPLE2="gsnap-Zm00001d.2.CDS-FMTig1.f2.sorted.bam"
 MAXSIZE=200000
 
 java -server -cp "build/install/evanslab-java/lib/*" edu.carnegiescience.dpb.evanslab.VCFSegregation $VCFFILE $SAMPLE1 $SAMPLE2 $MAXSIZE

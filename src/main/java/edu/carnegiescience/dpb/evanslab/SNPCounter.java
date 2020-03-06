@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import java.text.DecimalFormat;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
@@ -16,15 +18,20 @@ import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
 
+import org.mskcc.cbio.portal.stats.FisherExact;
+
 /**
  * Count the HET, HOM, No-calls per sample groups (A and B) from a VCF file.
  */
 public class SNPCounter {
 
+    static DecimalFormat phredFormat = new DecimalFormat("#.00");
+    static DecimalFormat oddsFormat = new DecimalFormat("0.00");
+
     public static void main(String[] args) throws FileNotFoundException, IOException {
 
-        if (args.length!=3) {
-            System.err.println("Usage: SNPCounter <VCF file> <A samples list> <B samples list>");
+        if (args.length!=4) {
+            System.err.println("Usage: SNPCounter <VCF file> <A samples list> <B samples list> <maxSize>");
             System.exit(1);
         }
 
@@ -33,6 +40,9 @@ public class SNPCounter {
         String vcfFilename = args[0];
         String aSamplesFilename = args[1];
         String bSamplesFilename = args[2];
+        int maxSize = Integer.parseInt(args[3]);
+
+        FisherExact fisherExact = new FisherExact(maxSize);
 
         File aSamplesFile = new File(aSamplesFilename);
         if (!aSamplesFile.exists()) {
@@ -51,7 +61,7 @@ public class SNPCounter {
             System.err.println("Error: file "+vcfFile.getName()+" does not exist.");
             System.exit(1);
         }
-        
+
         // load each group of samples into lists
         List<String> aSamplesList = new ArrayList<String>();
         List<String> bSamplesList = new ArrayList<String>();
@@ -65,20 +75,23 @@ public class SNPCounter {
         while ((line=samplesReader.readLine())!=null) {
             bSamplesList.add(line);
         }
-        
+
         // load the VCF file into a reader and header
         VCFFileReader vcfReader = new VCFFileReader(vcfFile, true);
         VCFHeader vcfHeader = vcfReader.getFileHeader();
 
         // output header
-        System.out.println("contig"+"\t"+"position"+"\t"+"qual"+"\t"+"ref"+"\t"+"alt"+"\t"+"Anc"+"\t"+"Ahom"+"\t"+"Ahet"+"\t"+"Bnc"+"\t"+"Bhom"+"\t"+"Bhet");
+        System.out.println("contig"+"\t"+"position"+"\t"+"qual"+"\t"+"ref"+"\t"+"alt"+"\t"+
+                           "aHomRef"+"\t"+"aHomVar"+"\t"+"aHet"+"\t"+
+                           "BHomRef"+"\t"+"BHomVar"+"\t"+"bHet"+"\t"+
+                           "OR");
         
         // spin through the VCF file
         Iterator<VariantContext> vcIterator = vcfReader.iterator();
         while (vcIterator.hasNext()) {
 
             VariantContext vc = vcIterator.next();
-            
+
             // position data
             String contig = vc.getContig();
             int position = vc.getStart();
@@ -90,37 +103,53 @@ public class SNPCounter {
 
             // A group
             int aNC = 0;
-            int aHom = 0;
+            int aHomRef = 0;
+            int aHomVar = 0;
             int aHet = 0;
             for (String sample : aSamplesList) {
                 Genotype g = vc.getGenotype(sample);
-                if (g.isHom()) {
-                    aHom++;
+                if (g.isHomRef()) {
+                    aHomRef++;
+                } else if (g.isHomVar()) {
+                    aHomVar++;
                 } else if (g.isHet()) {
                     aHet++;
-                } else {
+                } else if (g.isNoCall()) {
                     aNC++;
+                } else {
+                    System.out.println(sample+" has UNKNOWN genotype");
                 }
             }
 
             // B group
             int bNC = 0;
-            int bHom = 0;
+            int bHomRef = 0;
+            int bHomVar = 0;
             int bHet = 0;
             for (String sample : bSamplesList) {
                 Genotype g = vc.getGenotype(sample);
-                if (g.isHom()) {
-                    bHom++;
+                if (g.isHomRef()) {
+                    bHomRef++;
+                } else if (g.isHomVar()) {
+                    bHomVar++;
                 } else if (g.isHet()) {
                     bHet++;
-                } else {
+                } else if (g.isNoCall()) {
                     bNC++;
+                } else {
+                    System.out.println(sample+" has UNKNOWN genotype");
                 }
             }
 
+            // stats
+            double oddsRatio = ( (double)bHet/(double)bHomRef ) / ( (double)aHet/(double)aHomRef );
+            double p = fisherExact.getP(aHomRef, aHet, bHomRef, bHet);
+
             // output line
-            System.out.println(contig+"\t"+position+"\t"+vc.getPhredScaledQual()+"\t"+ref+"\t"+alt+"\t"+aNC+"\t"+aHom+"\t"+aHet+"\t"+bNC+"\t"+bHom+"\t"+bHet);
-            
+            System.out.println(contig+"\t"+position+"\t"+phredFormat.format(vc.getPhredScaledQual())+"\t"+ref+"\t"+alt+"\t"+
+                               aHomRef+"\t"+aHomVar+"\t"+aHet+"\t"+
+                               bHomRef+"\t"+bHomVar+"\t"+bHet+"\t"+
+                               oddsFormat.format(oddsRatio)+"\t"+p);
         }
 
     }

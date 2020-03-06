@@ -6,15 +6,14 @@ import java.util.List;
 /**
  * Encapsulates a SNP record from a tab-separated Novogene .snp file:
  *
- * annoPos  gene                            chr     pos1    pos2    ref     alt     genotype quality MQ      ref-depth  alt-depth
- * upstream transcript:Zm00001d027578_T001  1       8362870 8362870 C       A       het      26      25      1          5
- *
+ * 0       1       2       3       4       5       6       7          8       9       10              11
+ * annoPos info    contig  pos1    pos2    ref     alt     genotype   quality MQ      ref-depth       alt-depth
  */
 public class SNPRecord {
 
     public String annoPos;
-    public String gene;
-    public String chr;
+    public String info;
+    public String contig;
     public int pos1;
     public int pos2;
     public char ref;
@@ -29,13 +28,10 @@ public class SNPRecord {
      * Instantiate from a SNP line by parsing the elements.
      */
     public SNPRecord(String line) {
-
-        // get tab-separated fields
         String[] fields = line.split("\t");
-            
         annoPos = fields[0];
-        gene = fields[1];
-        chr = fields[2];
+        info = fields[1];
+        contig = fields[2];
         pos1 = Integer.parseInt(fields[3]);
         pos2 = Integer.parseInt(fields[4]);
         ref = fields[5].charAt(0);
@@ -45,16 +41,15 @@ public class SNPRecord {
         try { mq = Integer.parseInt(fields[9]); } catch (Exception e) { mq = 0; }
         try { refDepth = Integer.parseInt(fields[10]); } catch (Exception e) { refDepth = 0; }
         try { altDepth = Integer.parseInt(fields[11]); } catch (Exception e) { altDepth = 0; }
-
     }
 
     /**
      * Instantiate from individual values
      */
-    public SNPRecord(String annoPos, String gene, String chr, int pos1, int pos2, char ref, char alt, String genotype, double quality, int mq, int refDepth, int altDepth) {
+    public SNPRecord(String annoPos, String info, String contig, int pos1, int pos2, char ref, char alt, String genotype, double quality, int mq, int refDepth, int altDepth) {
         this.annoPos = annoPos;
-        this.gene = gene;
-        this.chr = chr;
+        this.info = info;
+        this.contig = contig;
         this.pos1 = pos1;
         this.pos2 = pos2;
         this.ref = ref;
@@ -98,19 +93,18 @@ public class SNPRecord {
      * Output the standardized string representation as used in a snp file.
      */
     public String toString() {
-        return annoPos+"\t"+gene+"\t"+chr+"\t"+pos1+"\t"+pos2+"\t"+ref+"\t"+alt+"\t"+genotype+"\t"+quality+"\t"+mq+"\t"+refDepth+"\t"+altDepth;
+        return annoPos+"\t"+info+"\t"+contig+"\t"+pos1+"\t"+pos2+"\t"+ref+"\t"+alt+"\t"+genotype+"\t"+quality+"\t"+mq+"\t"+refDepth+"\t"+altDepth;
     }
 
     /** 
-     * Return true if chromosome is a number. Useful for not including contigs.
+     * Return true if contig is a number. Useful for not including scaffolds.
      */
-    public boolean isNumericChromosome() {
+    public boolean hasNumericContig() {
         try {
-            int i = Integer.parseInt(chr);
+            int i = Integer.parseInt(contig);
             return true;
         } catch (Exception ex) {
             return false;
         }
     }
-    
 }

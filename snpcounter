@@ -1,4 +1,9 @@
 # Usage: SNPCounter <VCF file> <A samples file> <B samples file>
 # NOTE: VCF file must be bgzipped and tabix indexed using: tabix -p vcf myfile.vcf.gz
 #
-java -cp classes:lib/htsjdk.jar edu.carnegiescience.dpb.evanslab.SNPCounter ~/EvansLab/Twinning/all.filted.SNP.vcf.gz nontwins.txt twins.txt
+#
+VCFFILE=/home/shokin/evanslab-R/ig1/HISAT2.CDS-combined.vars.vcf.gz
+TWFILE=TW.txt
+NTFILE=NT.txt
+
+java -server -cp "build/install/evanslab-java/lib/*" edu.carnegiescience.dpb.evanslab.SNPCounter $VCFFILE $NTFILE $TWFILE 93
