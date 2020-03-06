@@ -202,7 +202,7 @@ public class SNPSegregation {
                 int aRef = A - aHet;
                 int bRef = B - bHet;
                 double or = ( (double)bHet/(double)bRef ) / ( (double)aHet/(double)aRef );
-                double p = fisherExact.getP(aHet, aRef, bHet, bRef);
+                double p = fisherExact.getTwoTailedP(aHet, aRef, bHet, bRef);
                 System.out.println(contig+"\t"+position+"\t"+aRefReads+"\t"+aAltReads+"\t"+aHet+"\t"+aHom+"\t"+bRefReads+"\t"+bAltReads+"\t"+bHet+"\t"+bHom+"\t"+or+"\t"+p);
             }
         }

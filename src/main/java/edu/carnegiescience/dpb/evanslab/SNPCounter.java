@@ -143,7 +143,7 @@ public class SNPCounter {
 
             // stats
             double oddsRatio = ( (double)bHet/(double)bHomRef ) / ( (double)aHet/(double)aHomRef );
-            double p = fisherExact.getP(aHomRef, aHet, bHomRef, bHet);
+            double p = fisherExact.getTwoTailedP(aHomRef, aHet, bHomRef, bHet);
 
             // output line
             System.out.println(contig+"\t"+position+"\t"+phredFormat.format(vc.getPhredScaledQual())+"\t"+ref+"\t"+alt+"\t"+

@@ -154,7 +154,7 @@ public class VCFCollector {
                     // STATS
                     int twRef = twCount - twHet - twHom;
                     int ntRef = ntCount - ntHet - ntHom;
-                    double p = fisherExact.getP(twRef, twHet, ntRef, ntHet);
+                    double p = fisherExact.getTwoTailedP(twRef, twHet, ntRef, ntHet);
                     double mlog10p = -Math.log10(p);
                     double or = ( (double)twHet*(double)ntRef ) / ( (double)ntHet*(double)twRef );
                     // OUTPUT
