@@ -1,0 +1,7 @@
+#!/bin/sh
+# Usage: BreakpointAnalyzer file.bam file.gff3
+
+BAM=igi3/HISAT2.2.igi3.gt650.sorted.bam
+GFF=/home/shokin/genomes/Zm-B73-REFERENCE-GRAMENE-4.0/Zm00001d.2.gff3
+
+java -cp "build/install/evanslab-java/lib/*" edu.carnegiescience.dpb.evanslab.BreakpointAnalyzer $BAM $GFF 

@@ -2,6 +2,12 @@
 # Usage: VCFCollector file.vcf.gz
 
 #VCF=/home/shokin/EvansLab/ig1/GBS/results/4.SNP_VarDetect/ALL.filted.SNP.vcf.gz
-VCF=/home/shokin/evanslab-R/ig1/gsnap-Zm-B73-REFERENCE-GRAMENE-4.0.GBS.vars.vcf.gz
+#VCF=/home/shokin/evanslab-R/ig1/gsnap-Zm-B73-REFERENCE-GRAMENE-4.0.GBS.vars.vcf.gz
 
-java -cp "build/install/evanslab-java/lib/*" edu.carnegiescience.dpb.evanslab.VCFCollector $VCF
+#VCF=/home/shokin/evanslab-R/ig1/HISAT2.GBS.combined.vars.vcf.gz
+#OUT=/home/shokin/evanslab-R/ig1/HISAT2.GBS.combined.vars.counts.txt
+
+VCF=/home/shokin/EvansLab/ig1/GBS/results/4.SNP_VarDetect/Novogene.GBS.vcf.gz
+OUT=/home/shokin/evanslab-R/ig1/Novogene.GBS.counts.txt
+
+java -cp "build/install/evanslab-java/lib/*" edu.carnegiescience.dpb.evanslab.VCFCollector $VCF DP4 > $OUT 

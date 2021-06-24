@@ -11,3 +11,6 @@ db.properties
 *.tsv
 *.ods
 *.txt.summary
+*.log
+*.fasta
+igi3
